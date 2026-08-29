@@ -30,6 +30,7 @@ Class and interface names MUST NOT add redundant descriptive prefixes that repea
 ## Dependencies & Compatibility
 
 - `webware/webware-core` supplies shared contracts (e.g. `SchemaInterface`).
+- `php-db/phpdb` provides the database abstraction (PostgreSQL, MySQL, SQLite) for migration persistence.
 - `webware/message-bus` is available for command/query orchestration when the migration logic needs it.
 - `webware/webware-tools` is a development-only dependency supplying the shared Mago configuration and CI conventions.
 - VCS repository entries appear only for pre-release dev dependencies and are removed once the dependency is tagged on Packagist.
