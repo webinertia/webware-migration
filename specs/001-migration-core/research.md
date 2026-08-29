@@ -37,3 +37,9 @@ Phase 0 output — resolves the technical unknowns from the plan's Technical Con
 - **Decision**: v1 assumes one runner at a time per environment. Apply/revert run inside a database transaction so a failed step rolls back and is never recorded; a duplicate-version set is rejected at discovery. Cross-runner locking is deferred and documented as an edge case.
 - **Rationale**: Satisfies the spec's "exactly-once" and "never mark a failed migration applied" requirements with minimal machinery.
 - **Alternatives considered**: Advisory locks / a `running` flag (rejected for v1 — added complexity with no current concurrent-runner scenario).
+
+## R-007: Migration integrity checksum
+
+- **Decision**: Record a SHA-256 checksum of each migration's source file in `schema_migrations.checksum` at apply time. Compute the checksum at discovery and compare it against the recorded value on inspection and before apply; on mismatch, fail with a clear "checksum mismatch" error.
+- **Rationale**: Detects an already-applied migration that was edited later, so schema state can never silently diverge from the code that was run (Flyway does this for the same reason). It directly serves FR-011 and SC-006.
+- **Alternatives considered**: No checksum (rejected — silent drift); hashing the class body via reflection (rejected — the source file is the canonical unit and the simplest to hash; file-less migrations are out of scope).

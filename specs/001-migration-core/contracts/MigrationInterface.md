@@ -28,3 +28,8 @@ interface MigrationInterface
 
 - Any class implementing `MigrationInterface` is discoverable by the runner.
 - `AbstractMigration` (optional base) provides description/version plumbing from the class name.
+
+## Checksum
+
+- The integrity checksum is computed from the migration's source file, not declared by the interface.
+- Implementations are expected to live one class per source file; file-less migrations are out of scope.

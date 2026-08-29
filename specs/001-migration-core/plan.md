@@ -11,7 +11,8 @@ Provide the core migration mechanism for the Webware component stack: a
 by version, a durable tracking record so applied migrations are never re-run,
 reverse-order rollback, and command-line commands for migrate/status/rollback.
 Built as a PHP library using the message bus for command/query orchestration and
-php-db for database abstraction.
+php-db for database abstraction. Applied migrations are integrity-checked with a
+SHA-256 source checksum so a migration modified after being applied is detected.
 
 ## Technical Context
 
