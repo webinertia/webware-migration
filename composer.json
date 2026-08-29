@@ -1,0 +1,44 @@
+{
+    "name": "webware/webware-migration",
+    "description": "Webware Migration — schema and data migration interfaces for the Webware component stack",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "webware",
+        "migration",
+        "schema",
+        "database"
+    ],
+    "authors": [
+        {
+            "name": "Joey Smith",
+            "email": "jsmith@webinertia.net",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "~8.4.1 || ~8.5.0",
+        "webware/webware-core": "0.1.x-dev"
+    },
+    "require-dev": {
+        "webware/webware-tools": "^0.1.x-dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Webware\\Migration\\": "src/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/webinertia/webware-core"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "8.4.99"
+        }
+    }
+}
