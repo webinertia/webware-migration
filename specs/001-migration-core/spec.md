@@ -79,6 +79,7 @@ An operator runs the apply, inspect, and revert operations as command-line comma
 - Two migrate operations run at the same time — the system MUST ensure only one applies at a time (or fail the second safely), so migrations are never double-applied.
 - Running migrate on an environment that is already up to date — MUST be a no-op with a clear "up to date" result.
 - A migration whose revert has never been exercised — revert MUST still be available and must not corrupt state if it fails.
+- An applied migration is modified after being applied — the system MUST detect the change and report it rather than silently trusting the stale record.
 
 ## Requirements *(mandatory)*
 
@@ -94,6 +95,7 @@ An operator runs the apply, inspect, and revert operations as command-line comma
 - **FR-008**: System MUST behave identically across the supported database systems (PostgreSQL, MySQL, SQLite).
 - **FR-009**: System MUST reject a migration set containing duplicate versions.
 - **FR-010**: System MUST NOT mark a migration applied unless its apply step completed successfully.
+- **FR-011**: System MUST detect when an already-applied migration has been modified since it was applied and MUST report the mismatch before applying further changes.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -110,6 +112,7 @@ An operator runs the apply, inspect, and revert operations as command-line comma
 - **SC-003**: 100% of migration records are accurate — no completed migration is ever re-applied and no failed migration is ever recorded as applied.
 - **SC-004**: An operator can determine an environment's exact applied-versus-pending state with a single inspection command.
 - **SC-005**: The same migration definitions run unmodified on every supported database system.
+- **SC-006**: 100% of post-apply modifications to a migration are detected and reported before any further operation proceeds.
 
 ## Assumptions
 
