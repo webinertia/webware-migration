@@ -2,7 +2,7 @@
 Sync Impact Report
 ==================
 Version change: (none) → 1.0.0 (initial ratification)
-Modified principles: none (initial)
+Modified principles: II and III revised pre-merge per maintainer direction (migration owns all logic; message-bus allowed)
 Added sections: Core Principles (5), Dependencies & Compatibility, Development Workflow, Governance
 Removed sections: none
 Follow-up TODOs: none
@@ -15,11 +15,11 @@ Follow-up TODOs: none
 ### I. Library-First
 Every capability ships as a self-contained, independently testable library component. Components MUST have a clear, singular purpose; organizational-only or kitchen-sink packages are prohibited.
 
-### II. Contracts First
-This package is a contract package: it defines the interfaces and specialized types that consumers depend on. The migration runner, tracking-table management, and discovery belong in the mechanism layer or in consumers, never in this package. The canonical contract is `Webware\Migration\MigrationInterface` (`getVersion`, `getDescription`, `up`, `down`).
+### II. Owned Migration Logic
+All migration logic lives in this package: the `Webware\Migration\MigrationInterface` contract (`getVersion`, `getDescription`, `up`, `down`), its implementations, the migration runner, tracking-table management, discovery, and the CLI commands that consumers invoke. Webware Console surfaces these commands without reimplementing them.
 
-### III. Persistence & Bus Agnostic
-Interfaces use natural PHP types only. No php-db result-set or row-prototype types and no message-bus types may cross package boundaries. This package stays free of message-bus imports.
+### III. Bus-Aware, Persistence-Agnostic
+The package MAY use the message bus (commands and queries) for its own orchestration. Persistence (repositories/adapters) stays bus-agnostic — pure storage with no message-bus types. Natural PHP types only across package boundaries: no php-db result-set or row-prototype types may leak into consumers.
 
 ### IV. Webware Quality Gates (NON-NEGOTIABLE)
 Every change MUST pass the shared webware gates: Mago format, lint, analyze, and guard with no silent suppression; PHPUnit 13 strict mode (coverage metadata, mock/stub split, `failOnNotice`/`failOnDeprecation`/`failOnWarning`); and Infection mutation coverage at or above the configured thresholds. Test doubles follow PHPUnit 13 rules — `createStub()` for value doubles, `createMock()` only with `expects()`.
@@ -29,7 +29,8 @@ Class and interface names MUST NOT add redundant descriptive prefixes that repea
 
 ## Dependencies & Compatibility
 
-- `webware/webware-core` is the sole runtime dependency, supplying shared contracts (e.g. `SchemaInterface`).
+- `webware/webware-core` supplies shared contracts (e.g. `SchemaInterface`).
+- `webware/message-bus` is available for command/query orchestration when the migration logic needs it.
 - `webware/webware-tools` is a development-only dependency supplying the shared Mago configuration and CI conventions.
 - VCS repository entries appear only for pre-release dev dependencies and are removed once the dependency is tagged on Packagist.
 
