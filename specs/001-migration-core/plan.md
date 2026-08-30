@@ -18,7 +18,7 @@ SHA-256 source checksum so a migration modified after being applied is detected.
 
 **Language/Version**: PHP ~8.4.1 || ~8.5.0
 
-**Primary Dependencies**: webware/webware-core (shared contracts), webware/message-bus ^2.0.0-beta.1 (command/query orchestration), php-db/phpdb (database abstraction)
+**Primary Dependencies**: webware/webware-core (shared contracts), webware/message-bus ^2.0.0-beta.1 (command/query orchestration), php-db/phpdb (database abstraction), webware/webware-console (hard dep — supplies the Symfony Console command surface)
 
 **Storage**: Relational database via the php-db abstraction — PostgreSQL, MySQL, SQLite; `schema_migrations` tracking table
 
@@ -85,8 +85,12 @@ src/
 ├── QueryHandler/
 │   ├── ListMigrationsHandler.php
 │   └── FetchAppliedMigrationsHandler.php
+├── Console/                          # Symfony Console commands (migrate/status/rollback)
+│   ├── MigrateCommand.php
+│   ├── StatusCommand.php
+│   └── RollbackCommand.php
 ├── Container/                        # factories for handlers + repository + runner
-└── ConfigProvider.php                # DI wiring + command_map/query_map
+└── ConfigProvider.php                # DI wiring + command_map/query_map + command catalog registration
 
 test/
 ├── unit/
@@ -95,8 +99,11 @@ test/
 
 **Structure Decision**: Single library package (`src/` + `test/`). Commands and
 queries are the bus boundary; the runner orchestrates apply/revert; the
-repository is the only php-db-touching layer. CLI commands (migrate/status/
-rollback) are provided by this package and surfaced by webware-console.
+repository is the only php-db-touching layer. This package provides ONLY the
+Symfony Console commands (`migrate`/`status`/`rollback` in
+`Webware\Migration\Console\`) as thin adapters over the bus; it does NOT build
+the Symfony Application or a `bin/` entry point — webware-console owns those and
+discovers this package's commands via `CommandCatalogInterface`.
 
 ## Complexity Tracking
 

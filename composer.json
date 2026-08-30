@@ -17,14 +17,26 @@
     ],
     "require": {
         "php": "~8.4.1 || ~8.5.0",
+        "php-db/phpdb": "^0.6.x-dev",
+        "psr/container": "^2.0",
+        "webware/message-bus": "^2.0.0-beta.1",
         "webware/webware-core": "0.1.x-dev"
     },
     "require-dev": {
+        "infection/infection": "^0.35.0",
+        "php-db/phpdb-sqlite": "^0.3.x-dev",
+        "phpunit/phpunit": "^13.3",
         "webware/webware-tools": "^0.1.x-dev"
     },
     "autoload": {
         "psr-4": {
             "Webware\\Migration\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "WebwareTest\\Migration\\": "test/unit/",
+            "WebwareTestIntegration\\Migration\\": "test/integration/"
         }
     },
     "repositories": [
@@ -39,6 +51,17 @@
         "sort-packages": true,
         "platform": {
             "php": "8.4.99"
-        }
+        },
+        "allow-plugins": {
+            "infection/extension-installer": true
+        },
+        "github-protocols": ["https"]
+    },
+    "scripts": {
+        "test": "phpunit --no-coverage --colors=always --testsuite \"unit test\"",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml --coverage-text",
+        "test-integration": "phpunit --no-coverage --colors=always --testsuite \"integration test\"",
+        "mutation-test": "infection",
+        "test-all": "@test && @test-integration && @mutation-test"
     }
 }

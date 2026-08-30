@@ -1,0 +1,64 @@
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": [
+            "src"
+        ]
+    },
+    "timeout": 10,
+    "threads": 4,
+    "minMsi": 96,
+    "minCoveredMsi": 96,
+    "logs": {
+        "text": "infection.log",
+        "summary": "summary.log",
+        "stryker": {
+            "badge": "/^\\d+\\.\\d+\\.x$/"
+        }
+    },
+    "mutators": {
+        "@default": true,
+
+        // `trim()` is a no-op here: a PHP class short name can never contain
+        // leading or trailing whitespace, so removing it changes nothing.
+        "UnwrapTrim": {
+            "ignore": [
+                "Webware\\Migration\\Migration\\AbstractMigration::extractDescription"
+            ]
+        },
+
+        // findApplied() returns the full record contract (version/description/
+        // applied_at/checksum), but callers only read `checksum`; removing an
+        // unread column from the SELECT has no observable effect.
+        "ArrayItemRemoval": {
+            "ignore": [
+                "Webware\\Migration\\Repository\\PhpDbMigrationRepository::findApplied"
+            ]
+        },
+
+        // `limit(1)` is redundant: `version` is the primary key, so the WHERE
+        // clause matches at most one row regardless of the limit.
+        "IncrementInteger": {
+            "ignore": [
+                "Webware\\Migration\\Repository\\PhpDbMigrationRepository::findApplied"
+            ]
+        },
+
+        // `$seen[$version] = true` uses the value only as a set placeholder;
+        // only the key is inspected via array_key_exists().
+        "TrueValue": {
+            "ignore": [
+                "Webware\\Migration\\Runner\\MigrationDiscovery::discover"
+            ]
+        },
+
+        // `array_values()` is redundant after `usort()`, which already reindexes
+        // to sequential 0-based keys.
+        "UnwrapArrayValues": {
+            "ignore": [
+                "Webware\\Migration\\Runner\\MigrationDiscovery::discover"
+            ]
+        }
+    },
+    "staticAnalysisTool": "mago"
+}
