@@ -1,11 +1,11 @@
 ---
-description: Session handoff for webware-migration — spec-kit state, architecture decisions, and next steps as of 2026-08-29.
+description: Session handoff for webware-migration — spec-kit state, architecture decisions, and next steps as of 2026-08-30.
 applyTo: '**/*'
 ---
 
 # Webware Migration Memory
 
-Tagline: Full spec-kit scaffold + constitution/spec/plan all MERGED. Next: `/speckit-tasks`, then implement. The checksum integrity requirement (FR-011) is in the spec.
+Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` done (draft PR). Implementation DONE: source + unit/SQLite integration tests written; 100% line + mutation coverage (Infection min 96%); mago gates clean; five false-positive mutators ignored with reasons. US4 (console commands) deferred until webware-console ships `CommandCatalogInterface`.
 
 ## Component
 
@@ -14,7 +14,10 @@ Tagline: Full spec-kit scaffold + constitution/spec/plan all MERGED. Next: `/spe
   commands (`migrate`/`status`/`rollback`) that webware-console surfaces.
 - Namespace: `Webware\Migration\`. PHP `~8.4.1 || ~8.5.0`.
 - Runtime deps: `webware/webware-core` (contracts), `webware/message-bus` `^2.0.0-beta.1`,
-  `php-db/phpdb` (PostgreSQL/MySQL/SQLite abstraction). Dev: `webware/webware-tools`.
+  `php-db/phpdb` (PostgreSQL/MySQL/SQLite abstraction), `psr/container`,
+  and **`webware/webware-console` (hard dep — brings Symfony Console)**. Dev: `webware/webware-tools`.
+- **This package owns its Symfony commands** (`migrate`/`status`/`rollback` in `Webware\Migration\Console\`)
+  and registers them for discovery by webware-console (see cross-component).
 
 ## Spec-kit state (specify 1.0.1)
 
@@ -38,20 +41,32 @@ Tagline: Full spec-kit scaffold + constitution/spec/plan all MERGED. Next: `/spe
 - Tracking table `schema_migrations` (version PK, description, applied_at, checksum).
 - **Integrity checksum (FR-011 / R-007)**: SHA-256 of the migration source file recorded at
   apply time; a mismatch on status/apply is a hard failure. One class per file; file-less out of scope.
-- CLI: Symfony Console `migrate`/`status`/`rollback` as thin adapters over the bus.
+- CLI: Symfony Console `migrate`/`status`/`rollback` as thin adapters over the bus; classes live
+  in `Webware\Migration\Console\` (NOT moved to webware-console).
+- Command registration: this package's `ConfigProvider` registers the commands under
+  `Webware\Console\Catalog\CommandCatalogInterface::class` (`commands` map) so webware-console's
+  catalog discovers them. Do NOT use `laminas-cli` (that key is mezzio-tooling's; console merges it separately).
 - Concurrency: v1 assumes one runner at a time; apply/revert run in a DB transaction so a
   failed step is never recorded.
 
 ## Cross-component
 
-- `webware-console` surfaces this package's CLI commands (TUI menu + help); it does not reimplement them.
+- `webware-console` is the generic CLI host (owns Symfony Application + `bin/` + config skeleton +
+  command discovery); it is **migration-agnostic**. Dependency direction is one-way: **migration → console**.
+- This package registers its commands via `ConfigProvider` under `CommandCatalogInterface::class`;
+  console's `CommandCatalogFactory` reads that key (and merges `laminas-cli` for mezzio-tooling).
 - `webware-acl` will ship `Migration016AclRole`/`Migration017AclRule` + a base-role seed
   (Guest/Member/Administrator) seeded via the DB; IMS builds on those. See webware-acl's Phase 4 note.
 - The spec-kit `webware-alignment` preset lives in webware-tools; CI/alignment for this repo is a later step.
 
 ## Next actions
 
-1. `/speckit-tasks` for `001-migration-core` (branch + PR).
-2. `/speckit-implement` ⇄ `/speckit-converge`.
-3. CI/alignment with webware-tools (wrapper workflow, `mago.toml` extends, `phpunit.xml.dist`).
-4. Queued 2026-08-29: strip the "no redundant namespace prefix" clause from Principle V here, in webware-console, and in the webware-tools `webware-alignment` preset constitution template.
+1. (DONE) `/speckit-tasks` for `001-migration-core` — `tasks.md` committed, draft PR.
+2. (DONE) `/speckit-implement`: source + tests written; 100% line and mutation coverage
+   (Infection `minMsi`/`minCoveredMsi` 96, five false-positive mutators ignored with reasons);
+   `mago lint`/`analyze`/`guard` clean (no baselines).
+3. Open the implementation draft PR and squash-merge to `0.1.x`.
+4. US4 — Symfony Console commands (`migrate`/`status`/`rollback`) + `webware/webware-console` hard dep:
+   deferred. webware-console is in active development; implement once it ships `CommandCatalogInterface`.
+5. CI/alignment with webware-tools (wrapper workflow, `mago.toml` extends, `phpunit.xml.dist`).
+6. Queued 2026-08-29: strip the "no redundant namespace prefix" clause from Principle V here, in webware-console, and in the webware-tools `webware-alignment` preset constitution template.

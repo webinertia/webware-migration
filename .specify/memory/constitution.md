@@ -1,9 +1,10 @@
 <!--
 Sync Impact Report
 ==================
-Version change: (none) → 1.0.0 (initial ratification)
-Modified principles: II and III revised pre-merge per maintainer direction (migration owns all logic; message-bus allowed)
-Added sections: Core Principles (5), Dependencies & Compatibility, Development Workflow, Governance
+Version change: 1.0.0 → 1.1.0
+Modified principles: II clarified (migration provides ONLY Symfony Console commands; webware-console owns the Application + bin)
+Modified sections: Dependencies & Compatibility (added webware/webware-console hard dep)
+Added sections: none
 Removed sections: none
 Follow-up TODOs: none
 -->
@@ -16,7 +17,7 @@ Follow-up TODOs: none
 Every capability ships as a self-contained, independently testable library component. Components MUST have a clear, singular purpose; organizational-only or kitchen-sink packages are prohibited.
 
 ### II. Owned Migration Logic
-All migration logic lives in this package: the `Webware\Migration\MigrationInterface` contract (`getVersion`, `getDescription`, `up`, `down`), its implementations, the migration runner, tracking-table management, discovery, and the CLI commands that consumers invoke. Webware Console surfaces these commands without reimplementing them.
+All migration logic lives in this package: the `Webware\Migration\MigrationInterface` contract (`getVersion`, `getDescription`, `up`, `down`), its implementations, the migration runner, tracking-table management, discovery, and the CLI commands that consumers invoke. This package provides ONLY the Symfony Console commands; it does NOT create the Symfony Application or a `bin/` entry point. Webware Console owns the Application and `bin/`, carries a hard dependency on this package, and surfaces these commands without reimplementing them.
 
 ### III. Bus-Aware, Persistence-Agnostic
 The package MAY use the message bus (commands and queries) for its own orchestration. Persistence (repositories/adapters) stays bus-agnostic — pure storage with no message-bus types. Natural PHP types only across package boundaries: no php-db result-set or row-prototype types may leak into consumers.
@@ -32,6 +33,7 @@ Class and interface names MUST NOT add redundant descriptive prefixes that repea
 - `webware/webware-core` supplies shared contracts (e.g. `SchemaInterface`).
 - `php-db/phpdb` provides the database abstraction (PostgreSQL, MySQL, SQLite) for migration persistence.
 - `webware/message-bus` is available for command/query orchestration when the migration logic needs it.
+- `webware/webware-console` is a hard runtime dependency supplying the Symfony Console command surface; this package contributes commands, not the Application.
 - `webware/webware-tools` is a development-only dependency supplying the shared Mago configuration and CI conventions.
 - VCS repository entries appear only for pre-release dev dependencies and are removed once the dependency is tagged on Packagist.
 
@@ -46,4 +48,4 @@ Class and interface names MUST NOT add redundant descriptive prefixes that repea
 - Amendments require a pull request that updates the version and Last Amended date.
 - Every pull request is reviewed for compliance with the Core Principles.
 
-**Version**: 1.0.0 | **Ratified**: 2026-08-28 | **Last Amended**: 2026-08-28
+**Version**: 1.1.0 | **Ratified**: 2026-08-28 | **Last Amended**: 2026-08-29

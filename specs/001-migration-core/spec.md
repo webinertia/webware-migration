@@ -117,7 +117,7 @@ An operator runs the apply, inspect, and revert operations as command-line comma
 ## Assumptions
 
 - Migrations are authored by developers who understand the schema; end-users never write migrations directly.
-- The command-line interface is the operator surface; a TUI/console is a separate component that presents these commands and is out of scope here.
+- The command-line interface is the operator surface; this component provides only the Symfony Console commands (`migrate`/`status`/`rollback`). The Symfony Application and its `bin/` entry point are owned by webware-console (a hard dependency of this component) and are out of scope here.
 - Supported database systems are PostgreSQL, MySQL, and SQLite, provided through a shared database abstraction.
 - Seeding baseline data (e.g. default roles) is a consumer concern layered on top of migrations, not part of this component's core mechanism.
 - The migrate operation runs one environment at a time; cross-environment coordination is out of scope for v1.

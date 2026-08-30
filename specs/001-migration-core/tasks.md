@@ -15,7 +15,7 @@
 
 **Purpose**: Tooling and dependency baseline so all stories run green.
 
-- [ ] T001 Add `webware/webware-core`, `webware/message-bus` (^2.0.0-beta.1), and `php-db/phpdb` to `require` in `composer.json`; keep `webware/webware-tools` in `require-dev`; run `composer update`
+- [ ] T001 Add `webware/webware-core`, `webware/message-bus` (^2.0.0-beta.1), `php-db/phpdb`, and `webware/webware-console` (hard dep — Symfony Console) to `require` in `composer.json`; keep `webware/webware-tools` in `require-dev`; run `composer update`
 - [ ] T002 [P] Create `phpunit.xml.dist` with `requireCoverageMetadata="true"`, `failOnNotice/failOnDeprecation/failOnWarning="true"`, and a `unit test` + `integration test` testsuite
 - [ ] T003 [P] Create `mago.toml` that `extends = "vendor/webware/webware-tools/mago.toml"` and sets `php-version`, baseline paths, and source paths
 
@@ -104,10 +104,10 @@
 
 ### Implementation for User Story 4
 
-- [ ] T027 [US4] Implement Symfony Console commands `MigrateCommand`/`StatusCommand`/`RollbackCommand` in `src/Console/` as thin adapters dispatching the bus commands/queries
-- [ ] T028 [US4] Add a `bin/console`-style entry point in `bin/` that boots the container and runs the Symfony application
+- [ ] T027 [US4] Implement Symfony Console commands `MigrateCommand`/`StatusCommand`/`RollbackCommand` in `src/Console/` (namespace `Webware\Migration\Console\`) as thin adapters dispatching the bus commands/queries
+- [ ] T028 [US4] Register `MigrateCommand`/`StatusCommand`/`RollbackCommand` in `src/ConfigProvider.php` under `Webware\Console\Catalog\CommandCatalogInterface::class` (`commands` map) for discovery by webware-console — do NOT add a `bin/` entry point (webware-console owns the Symfony Application)
 
-**Checkpoint**: US4 independently functional — all three commands run from the shell.
+**Checkpoint**: US4 independently functional — all three commands are discoverable by webware-console and run from the shell; this package owns no Symfony Application or `bin/` entry.
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
