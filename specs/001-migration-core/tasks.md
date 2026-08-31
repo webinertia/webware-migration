@@ -105,7 +105,7 @@
 ### Implementation for User Story 4
 
 - [ ] T027 [US4] Implement Symfony Console commands `MigrateCommand`/`StatusCommand`/`RollbackCommand` in `src/Console/` (namespace `Webware\Migration\Console\`) as thin adapters dispatching the bus commands/queries
-- [ ] T028 [US4] Register `MigrateCommand`/`StatusCommand`/`RollbackCommand` in `src/ConfigProvider.php` under `Webware\Console\Catalog\CommandCatalogInterface::class` (`commands` map) for discovery by webware-console — do NOT add a `bin/` entry point (webware-console owns the Symfony Application)
+- [ ] T028 [US4] Register `MigrateCommand`/`StatusCommand`/`RollbackCommand` in `src/ConfigProvider.php` under `Webware\Console\ConsoleInterface::class` (`commands` map) for discovery by webware-console — do NOT add a `bin/` entry point (webware-console owns the Symfony Application)
 
 **Checkpoint**: US4 independently functional — all three commands are discoverable by webware-console and run from the shell; this package owns no Symfony Application or `bin/` entry.
 
