@@ -2,8 +2,8 @@
 
 ## Queries (read)
 
-- `ListMigrationsQuery` → payload `array<int, MigrationInfo>` where `MigrationInfo` is a readonly read-model (`version`, `description`, `status: applied|pending`).
-- `FetchAppliedMigrationsQuery` → payload `array<int, AppliedMigration>` where `AppliedMigration` is a readonly read-model (`version`, `description`, `appliedAt`, `checksum`).
+- `ListMigrationsQuery` → payload `array<int, MigrationInfo>` where `MigrationInfo` is a readonly read-model (`package`, `version`, `description`, `status: applied|pending`).
+- `FetchAppliedMigrationsQuery` → payload `array<int, AppliedMigration>` where `AppliedMigration` is a readonly read-model (`package`, `version`, `description`, `appliedAt`, `checksum`).
 
 ## Commands (write)
 

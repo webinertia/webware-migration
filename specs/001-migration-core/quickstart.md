@@ -12,7 +12,7 @@ Validation guide — proves the feature end-to-end. Implementation details belon
 
 1. Install dependencies: `composer install`.
 
-2. Define two sample migrations (e.g. `Migration001CreateRoles`, `Migration002AddRoleColumn`) implementing [MigrationInterface](./contracts/MigrationInterface.md).
+2. Define two sample migrations (e.g. `Migration001CreateRoles`, `Migration002AddRoleColumn`) in a migrations directory, each implementing [MigrationInterface](./contracts/MigrationInterface.md), and register the directory in a `ConfigProvider` under `migrations.paths`.
 
 3. Run the migrate command.
 

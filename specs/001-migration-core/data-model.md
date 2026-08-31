@@ -4,26 +4,28 @@
 
 ### Migration (behavior, not persisted)
 
-- `version`: int — unique, positive, determines ordering.
-- `description`: string — human-readable summary of the change.
+- `package`: string — owning Composer package (e.g. `webware/acl`), derived from the migration's namespace.
+- `version`: int — positive, package-scoped; parsed from the `NNN` in the class/file name `Migration{NNN}{Description}`.
+- `description`: string — human-readable summary, derived from the class name suffix.
 - `up()`: apply step.
 - `down()`: revert step.
 
 ### AppliedMigration (persisted record)
 
-- `version`: int — primary key, references the applied Migration.
+- `package`: string — component of the composite primary key.
+- `version`: int — component of the composite primary key.
 - `description`: string — captured at apply time.
 - `appliedAt`: timestamp — when it was applied.
-- `checksum`: string — SHA-256 of the migration source at apply time.
+- `checksum`: string — SHA-256 of the migration source file at apply time.
 
 ### MigrationSet (in-memory collection)
 
-- Ordered list of discovered `Migration` instances, sorted ascending by `version`.
+- Discovered `Migration` instances grouped by package; within a package ordered ascending by `version`; packages ordered by the Composer dependency graph.
 
 ## Relationships
 
-- An `AppliedMigration` corresponds to exactly one applied `Migration` by `version`.
-- `MigrationSet` is derived from discovered migrations; `AppliedMigration` rows come from the `schema_migrations` table.
+- An `AppliedMigration` corresponds to exactly one applied `Migration` by `(package, version)`.
+- `MigrationSet` is derived from discovered migrations (directory glob); `AppliedMigration` rows come from the `schema_migrations` table.
 
 ## State transitions
 
@@ -32,7 +34,7 @@
 
 ## Validation rules
 
-- `version` MUST be a positive integer and unique within a set (FR-009).
+- `version` MUST be a positive integer and unique within a package (FR-009).
 - A migration MUST NOT be recorded applied unless `up()` completed (FR-010).
-- Ordering MUST be ascending by `version` (FR-002).
+- Within a package, ordering MUST be ascending by `version` (filename order); across packages it MUST follow the Composer dependency graph (FR-002, FR-014).
 - An applied migration whose current checksum differs from its recorded `checksum` MUST be reported as a mismatch and MUST NOT be trusted (FR-011).

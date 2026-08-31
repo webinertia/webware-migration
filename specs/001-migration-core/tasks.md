@@ -120,6 +120,21 @@
 - [ ] T033 [P] Update `README.md` with badges and usage
 - [ ] T034 Run `quickstart.md` validation end-to-end
 
+## Phase 8: Multi-component rework (package-scoped identity + directory discovery)
+
+**Purpose**: Replace the single global version with `(package, version)`, and
+per-migration config registration with ConfigProvider directory globbing.
+
+- [ ] T035 Remove `getVersion()` from `MigrationInterface`; version is parsed from the filename by discovery.
+- [ ] T036 Add `package` to `schema_migrations` as a composite primary key with `version`; update `PhpDbMigrationRepository` (R-004).
+- [ ] T037 Add `package` to the `AppliedMigration` / `MigrationInfo` read-models.
+- [ ] T038 Introduce `MigrationRunnerInterface` and `MigrationDiscoveryInterface` (with `getPaths()`); make the concrete services implement them.
+- [ ] T039 Change discovery to glob the merged `migrations.paths` directories, derive package from namespace and version from filename, and order packages by the Composer dependency graph.
+- [ ] T040 Change `ConfigProvider` to expose `migrations.paths` (directories) instead of a migration class list; update `MigrationDiscoveryFactory`.
+- [ ] T041 Update `AbstractMigration` to drop version extraction (keep description derivation from the class name).
+- [ ] T042 Update unit + integration tests and fixtures for package-scoped identity and directory discovery.
+- [ ] T043 Re-run quality gates: 100% line + mutation coverage, `mago` clean.
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies

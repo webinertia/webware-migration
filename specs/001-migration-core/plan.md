@@ -7,12 +7,14 @@
 ## Summary
 
 Provide the core migration mechanism for the Webware component stack: a
-`MigrationInterface` contract, deterministic discovery and ordering of migrations
-by version, a durable tracking record so applied migrations are never re-run,
-reverse-order rollback, and command-line commands for migrate/status/rollback.
-Built as a PHP library using the message bus for command/query orchestration and
-php-db for database abstraction. Applied migrations are integrity-checked with a
-SHA-256 source checksum so a migration modified after being applied is detected.
+`MigrationInterface` contract, deterministic discovery (directory glob) and
+ordering (filename within a package, Composer dependency graph across packages),
+a durable `(package, version)` tracking record so applied migrations are never
+re-run, reverse-order rollback, and command-line commands for
+migrate/status/rollback. Built as a PHP library using the message bus for
+command/query orchestration and php-db for database abstraction. Applied
+migrations are integrity-checked with a SHA-256 source checksum so a migration
+modified after being applied is detected.
 
 ## Technical Context
 
@@ -30,9 +32,9 @@ SHA-256 source checksum so a migration modified after being applied is detected.
 
 **Performance Goals**: No strict throughput target; discovery and state inspection must feel instant for typical migration counts (hundreds)
 
-**Constraints**: Persistence layer bus-agnostic; no php-db types cross package boundaries; deterministic version ordering; exactly-once application
+**Constraints**: Persistence layer bus-agnostic; no php-db types cross package boundaries; package-scoped identity; deterministic ordering (filename within a package, Composer graph across packages); exactly-once application
 
-**Scale/Scope**: Shared library consumed by multiple webware components (acl, IMS); migrations numbered 001–999
+**Scale/Scope**: Shared library consumed by multiple webware components (acl, IMS); migrations numbered 001–999 per package
 
 ## Constitution Check
 
@@ -64,12 +66,16 @@ specs/[###-feature]/
 
 ```text
 src/
-├── MigrationInterface.php            # migration contract (getVersion/getDescription/up/down)
+├── MigrationInterface.php            # migration contract (up/down/getDescription)
 ├── Migration/
 │   └── AbstractMigration.php         # optional base implementation
 ├── Runner/
-│   ├── MigrationRunner.php           # apply pending / revert orchestration
-│   └── MigrationDiscovery.php        # discover + order migrations by version
+│   ├── MigrationRunnerInterface.php  # migrate/rollback contract
+│   ├── MigrationRunner.php           # concrete runner implementing the interface
+│   ├── MigrationDiscoveryInterface.php # getPaths/discover contract
+│   └── MigrationDiscovery.php        # directory glob + package/version derivation + ordering
+├── ReadModel/
+│   └── DiscoveredMigration.php       # package + version + migration instance
 ├── Repository/
 │   ├── MigrationRepositoryInterface.php
 │   └── PhpDbMigrationRepository.php  # bus-agnostic persistence (schema_migrations)
@@ -104,6 +110,13 @@ Symfony Console commands (`migrate`/`status`/`rollback` in
 `Webware\Migration\Console\`) as thin adapters over the bus; it does NOT build
 the Symfony Application or a `bin/` entry point — webware-console owns those and
 discovers this package's commands via `ConsoleInterface`.
+
+Discovery is directory-based: each component's `ConfigProvider` contributes its
+migration directory under `migrations.paths`; `MigrationDiscovery` globs those
+paths and derives each migration's package (from namespace) and version (from
+filename). Contracts are interfaces (`MigrationRunnerInterface`,
+`MigrationDiscoveryInterface`) so other packages type-hint the contracts, never
+the concrete `final` classes.
 
 ## Complexity Tracking
 

@@ -74,7 +74,7 @@ An operator runs the apply, inspect, and revert operations as command-line comma
 ### Edge Cases
 
 - A migration fails partway through its apply step — the system MUST NOT mark it applied and MUST report the failure with the migration's identity.
-- Two migrations declare the same version — the system MUST reject the set as ambiguous rather than applying nondeterministically.
+- Two migrations in the same package declare the same version — the system MUST reject the set as ambiguous rather than applying nondeterministically.
 - A revert step fails — the system MUST NOT mark the migration as reverted and MUST leave its record intact so state is not silently corrupted.
 - Two migrate operations run at the same time — the system MUST ensure only one applies at a time (or fail the second safely), so migrations are never double-applied.
 - Running migrate on an environment that is already up to date — MUST be a no-op with a clear "up to date" result.
@@ -85,23 +85,28 @@ An operator runs the apply, inspect, and revert operations as command-line comma
 
 ### Functional Requirements
 
-- **FR-001**: System MUST let a developer define a migration as a versioned unit with an apply step and a revert step.
-- **FR-002**: System MUST order migrations deterministically by version.
+- **FR-001**: System MUST let a developer define a migration as a versioned unit with an apply step and a revert step; the version is scoped to the owning package.
+- **FR-002**: System MUST order migrations deterministically — by version within a package (filename order) and by the Composer dependency graph across packages.
 - **FR-003**: System MUST apply each pending migration exactly once, in version order.
 - **FR-004**: System MUST durably record each applied migration so a completed migration is never re-applied.
 - **FR-005**: System MUST provide read-only inspection of applied and pending migrations without changing state.
 - **FR-006**: System MUST revert applied migrations in reverse application order.
 - **FR-007**: System MUST expose apply, inspect, and revert as command-line commands with clear output and correct exit status.
 - **FR-008**: System MUST behave identically across the supported database systems (PostgreSQL, MySQL, SQLite).
-- **FR-009**: System MUST reject a migration set containing duplicate versions.
+- **FR-009**: System MUST reject a migration set containing duplicate `(package, version)` identities.
 - **FR-010**: System MUST NOT mark a migration applied unless its apply step completed successfully.
 - **FR-011**: System MUST detect when an already-applied migration has been modified since it was applied and MUST report the mismatch before applying further changes.
+- **FR-012**: System MUST scope migration identity to the owning package, so two packages may each ship their own `001` without colliding.
+- **FR-013**: System MUST discover migrations by globbing the migration directories each component registers via its `ConfigProvider` (no per-migration registration).
+- **FR-014**: System MUST order migrations within a package by ascending version (filename order) and across packages by the Composer dependency graph.
+- **FR-015**: System MUST NOT check package compatibility; compatibility is enforced by Composer (`require`/`conflict`) at install time.
+- **FR-016**: The runner and discovery services MUST be exposed as interfaces so other packages can depend on the contracts.
 
 ### Key Entities *(include if feature involves data)*
 
-- **Migration**: a versioned unit of change; has an identifier, an apply behavior, and a revert behavior.
-- **Applied migration record**: the durable record that a specific migration version was applied, including when it was applied.
-- **Migration set**: the ordered collection of discovered migrations for an environment.
+- **Migration**: a versioned unit of change; has an owning package, a package-scoped version, a description, an apply behavior, and a revert behavior.
+- **Applied migration record**: the durable record that a specific `(package, version)` migration was applied, including when it was applied.
+- **Migration set**: the ordered collection of discovered migrations for an environment, grouped by package and ordered within a package by version and across packages by the Composer dependency graph.
 
 ## Success Criteria *(mandatory)*
 
@@ -121,3 +126,6 @@ An operator runs the apply, inspect, and revert operations as command-line comma
 - Supported database systems are PostgreSQL, MySQL, and SQLite, provided through a shared database abstraction.
 - Seeding baseline data (e.g. default roles) is a consumer concern layered on top of migrations, not part of this component's core mechanism.
 - The migrate operation runs one environment at a time; cross-environment coordination is out of scope for v1.
+- Migrations live in the owning component's own namespace (e.g. `Webware\Acl\Migration\…`); components do NOT shadow the `Webware\Migration` namespace.
+- Each component declares its migration directory via its `ConfigProvider` under `migrations.paths`; the runner discovers migrations by globbing those directories.
+- Package compatibility is Composer's responsibility (`require`/`conflict`); the runner never checks versions or compatibility.

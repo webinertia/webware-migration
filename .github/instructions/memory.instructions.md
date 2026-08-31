@@ -1,11 +1,11 @@
 ---
-description: Session handoff for webware-migration — spec-kit state, architecture decisions, and next steps as of 2026-08-30.
+description: Session handoff for webware-migration — spec-kit state, architecture decisions, and next steps as of 2026-08-31.
 applyTo: '**/*'
 ---
 
 # Webware Migration Memory
 
-Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` done (draft PR). Implementation DONE: source + unit/SQLite integration tests written; 100% line + mutation coverage (Infection min 96%); mago gates clean; five false-positive mutators ignored with reasons. US4 (console commands) implemented via `Webware\Console\ConsoleInterface` command registration.
+Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` done (draft PR). Implementation DONE: source + unit/SQLite integration tests written; 100% line + mutation coverage (Infection min 96%); mago gates clean; five false-positive mutators ignored with reasons. US4 (console commands) implemented via `Webware\Console\ConsoleInterface` command registration. Multi-component redesign DECIDED 2026-08-31 (spec docs amended; src NOT yet updated).
 
 ## Component
 
@@ -25,10 +25,11 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
   `.specify/feature.json` is gitignored (local-only). Root `.gitignore` = `/vendor/` only.
 - Feature: `specs/001-migration-core/`.
   - constitution (`/speckit-constitution`) — MERGED.
-  - spec (`/speckit-specify`) — MERGED (US1–US4; FR-001…FR-011).
-  - plan (`/speckit-plan`) — MERGED (plan.md, research.md R-001…R-007, data-model.md,
+  - spec (`/speckit-specify`) — MERGED (US1–US4; FR-001…FR-016).
+  - plan (`/speckit-plan`) — MERGED (plan.md, research.md R-001…R-010, data-model.md,
     contracts/, quickstart.md).
-  - tasks (`/speckit-tasks`) — NOT STARTED. Next step.
+  - tasks (`/speckit-tasks`) — DONE for T001–T034 (Phase 1–7 implemented); Phase 8
+    (T035–T043, multi-component rework) pending.
 - Workflow: each step = own branch + squash-merged PR to `0.1.x`. Conventional Commits;
   commit author must be `Joey Smith <jsmith@webinertia.net>` (never derive an identity).
 
@@ -36,9 +37,20 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
 
 - Bus-aware, persistence-agnostic: message-bus command/query orchestration; repositories
   bus-agnostic (natural types only); no php-db `ResultSet`/`RowPrototype` crosses the bus boundary.
-- `MigrationInterface`: `getVersion(): int`, `getDescription(): string`, `up(): void`, `down(): void`.
-- Naming `Migration{NNN}{PascalDescription}`; ascending integer version ordering.
-- Tracking table `schema_migrations` (version PK, description, applied_at, checksum).
+- `MigrationInterface`: `up(): void`, `down(): void`, `getDescription(): string`. NO `getVersion()` —
+  version is parsed from the filename at discovery.
+- Naming `Migration{NNN}{PascalDescription}` (zero-padded `NNN`) in the component's OWN namespace
+  (e.g. `Webware\Acl\Migration\Migration001CreateRoles`); version is package-scoped.
+- Tracking table `schema_migrations` with composite PK `(package, version)` + description, applied_at, checksum.
+- Discovery: each component's `ConfigProvider` returns its migrations directory under
+  `migrations.paths` (laminas-view `template_path_stack` style); the runner globs each path for
+  `Migration*.php`. Adding a file is registration — no per-migration config, no `Webware\Migration`
+  namespace shadowing.
+- Ordering: within a package by filename (glob default alphabetical, zero-padded); across packages
+  by the Composer dependency graph (topological).
+- Compatibility: Composer's job (`require`/`conflict` in composer.json) — never checked by the runner.
+- Contracts are interfaces: `MigrationRunnerInterface` (`migrate()`/`rollback()`),
+  `MigrationDiscoveryInterface` (`getPaths()`/`discover()`). Concrete `final` classes implement them.
 - **Integrity checksum (FR-011 / R-007)**: SHA-256 of the migration source file recorded at
   apply time; a mismatch on status/apply is a hard failure. One class per file; file-less out of scope.
 - CLI: Symfony Console `migrate`/`status`/`rollback` as thin adapters over the bus; classes live
@@ -70,3 +82,7 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
    `Webware\Console\ConsoleInterface` + `webware/webware-console` hard dep (`0.1.x-dev`).
 5. CI/alignment with webware-tools (wrapper workflow, `mago.toml` extends, `phpunit.xml.dist`).
 6. Queued 2026-08-29: strip the "no redundant namespace prefix" clause from Principle V here, in webware-console, and in the webware-tools `webware-alignment` preset constitution template.
+7. (IN PROGRESS 2026-08-31) Multi-component redesign — decisions locked into `specs/001-migration-core/`
+   (spec/plan/data-model/research/contracts/tasks/quickstart amended on branch
+   `amend/multi-component-migrations`); implement Phase 8 tasks T035–T043 in `tasks.md`.
+   NOT yet implemented in `src/`.

@@ -16,15 +16,15 @@ Phase 0 output — resolves the technical unknowns from the plan's Technical Con
 
 ## R-003: Migration identity and ordering
 
-- **Decision**: Each migration class is named `Migration{NNN}{PascalDescription}` and its version is the leading integer `NNN`. Ordering is strictly ascending by integer version. `getDescription()` supplies the human-readable summary.
-- **Rationale**: Matches the IMS precedent (`Migration016AclRole`, `Migration017AclRule`) and the migration-layer design (`Migration{NNN}{PascalDescription}` naming).
-- **Alternatives considered**: Timestamp-based naming (rejected — not deterministic for a seed/migration workflow that depends on fixed versions).
+- **Decision**: Each migration class is named `Migration{NNN}{PascalDescription}` (zero-padded `NNN`) and lives in the owning component's own namespace (e.g. `Webware\Acl\Migration\Migration001CreateRoles`). The version is the leading integer parsed from the filename; the owning package is derived from the namespace via Composer's PSR-4 map. Within a package, order is the `glob()` filename order. Across packages, order is the Composer dependency graph (topological): a package's migrations run after the migrations of every package it requires.
+- **Rationale**: Per-package versions remove cross-component version collisions; filename order is engine-level (no const introspection, no config ordering); the Composer graph is acyclic by construction and already resolved at install time.
+- **Alternatives considered**: A single global integer version (rejected — collisions across components); a `VERSION` const plus config-list registration (rejected — more authoring and a "forgot to register" footgun); timestamp naming (rejected — not deterministic for seed workflows).
 
 ## R-004: Tracking table schema
 
-- **Decision**: A `schema_migrations` table with `version` (integer, primary key), `description` (string), and `applied_at` (timestamp). Applied migrations are rows in this table.
-- **Rationale**: Minimal, queryable, and the standard approach; supports the "list applied vs pending" inspection story.
-- **Alternatives considered**: A JSON document of applied versions (rejected — harder to query and constrain uniqueness).
+- **Decision**: A `schema_migrations` table with `package` (string) and `version` (integer) as a composite primary key, plus `description` (string), `applied_at` (timestamp), and `checksum` (string). Applied migrations are rows keyed by `(package, version)`.
+- **Rationale**: The composite key keeps each component's `001` distinct while remaining queryable; supports the "list applied vs pending" inspection story.
+- **Alternatives considered**: `version`-only PK (rejected — cross-component collisions); a JSON document (rejected — harder to query and constrain uniqueness).
 
 ## R-005: CLI command layer
 
@@ -43,3 +43,21 @@ Phase 0 output — resolves the technical unknowns from the plan's Technical Con
 - **Decision**: Record a SHA-256 checksum of each migration's source file in `schema_migrations.checksum` at apply time. Compute the checksum at discovery and compare it against the recorded value on inspection and before apply; on mismatch, fail with a clear "checksum mismatch" error.
 - **Rationale**: Detects an already-applied migration that was edited later, so schema state can never silently diverge from the code that was run (Flyway does this for the same reason). It directly serves FR-011 and SC-006.
 - **Alternatives considered**: No checksum (rejected — silent drift); hashing the class body via reflection (rejected — the source file is the canonical unit and the simplest to hash; file-less migrations are out of scope).
+
+## R-008: Discovery via ConfigProvider directories
+
+- **Decision**: Each component's `ConfigProvider` declares its migrations directory under a shared config key, laminas-view template-dir style: `'migrations' => ['paths' => [__DIR__ . '/../src/Migration']]`. Config-aggregator accumulates every path (numeric-keyed list append). The runner `glob()`s each path for `Migration*.php`; `pathinfo(..., PATHINFO_FILENAME)` yields the class name, and the zero-padded filename order is the within-package order. Adding a file is registration — no per-migration config, no `Webware\Migration` namespace shadowing.
+- **Rationale**: Mirrors the proven laminas-view `template_path_stack` merge; eliminates the "forgot to register a migration" footgun; keeps migrations in their component's own namespace so FQCNs cannot collide across components.
+- **Alternatives considered**: Shared `Webware\Migration\<Component>\` PSR-4 prefix (rejected — namespace inversion; the migration package owns `Webware\Migration`); per-migration config registration (rejected — silent-skip footgun).
+
+## R-009: Cross-package ordering and compatibility
+
+- **Decision**: The runner orders packages by the Composer dependency graph (topological) and never checks compatibility. Compatibility is Composer's job: `require` for packages whose schema a migration depends on, and `conflict` (e.g. `"webware/acl": "<0.2.0"`) to forbid schema-incompatible combinations where a hard `require` would over-couple.
+- **Rationale**: Composer will not install an incompatible version, so the runner can trust the install; ordering reduces to the already-resolved, acyclic package graph. No per-migration dependency declaration is needed.
+- **Alternatives considered**: Migration-level `requires()` edges (rejected — duplicates composer.json and re-introduces per-migration authoring).
+
+## R-010: Contracts are interfaces
+
+- **Decision**: `MigrationRunnerInterface` (`migrate()`/`rollback()`) and `MigrationDiscoveryInterface` (directory-glob discovery) are interfaces; concrete `final readonly` classes implement them. `MigrationInterface` is behavior-only: `up()`, `down()`, `getDescription()` — the version is supplied by discovery (parsed from the filename), not by the instance.
+- **Rationale**: Other components must be able to type-hint the contracts; concrete service classes are wiring details.
+- **Alternatives considered**: `final readonly` concrete services (rejected — nothing outside the package can depend on them as a contract).

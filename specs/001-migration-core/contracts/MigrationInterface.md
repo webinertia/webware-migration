@@ -7,27 +7,28 @@ Namespace: `Webware\Migration`
 ```php
 interface MigrationInterface
 {
-    public function getVersion(): int;
-
-    public function getDescription(): string;
-
     public function up(): void;
 
     public function down(): void;
+
+    public function getDescription(): string;
 }
 ```
 
 ## Semantics
 
-- `getVersion()` returns the integer version (the `NNN` from `Migration{NNN}...`).
-- `getDescription()` returns a human-readable summary of the change.
 - `up()` applies the change; MUST throw on failure so the runner does not record it.
 - `down()` reverts the change; MUST throw on failure so the runner does not remove the record.
+- `getDescription()` returns the human-readable summary derived from the class name suffix.
+
+The version is NOT part of this contract. It is the leading zero-padded `NNN`
+parsed from the class/file name `Migration{NNN}{Description}` at discovery time
+(see [MigrationDiscoveryInterface](./MigrationDiscoveryInterface.md)).
 
 ## Implementers
 
-- Any class implementing `MigrationInterface` is discoverable by the runner.
-- `AbstractMigration` (optional base) provides description/version plumbing from the class name.
+- Any class implementing `MigrationInterface` in a registered migrations directory is discoverable.
+- `AbstractMigration` (optional base) provides the description plumbing from the class name.
 
 ## Checksum
 
