@@ -49,5 +49,10 @@ Register discovered migrations in the container config and operate through the
 
 ## Documentation
 
-- [Feature specification](specs/001-migration-core/spec.md)
-- [Implementation plan](specs/001-migration-core/plan.md)
+Versioned documentation lives under [`docs/`](docs/):
+
+- [Installation](docs/v1/installation.md)
+- [Quickstart](docs/v1/quickstart.md)
+- [Commands](docs/v1/commands.md)
+- [Configuration](docs/v1/configuration.md)
+- [Development](docs/v1/development.md)
