@@ -16,8 +16,8 @@ a hard dependency on this package.
 | `rollback [--steps=N]` | Revert the N most recent applied migrations (default 1) | 0 on success; non-zero on failure |
 
 Registration: `ConfigProvider` publishes the commands under
-`Webware\Console\Catalog\CommandCatalogInterface::class` (`commands` map);
-webware-console's `CommandCatalogFactory` reads that key. Do NOT use the
+`Webware\Console\ConsoleInterface::class` (`commands` map);
+webware-console's `CommandLoaderFactory` reads that key. Do NOT use the
 `laminas-cli` key (that is mezzio-tooling's; the console merges it separately).
 
 Output is human-readable text; the same exit-status contract holds whether a command is invoked directly or through the console.

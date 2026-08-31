@@ -5,7 +5,7 @@ applyTo: '**/*'
 
 # Webware Migration Memory
 
-Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` done (draft PR). Implementation DONE: source + unit/SQLite integration tests written; 100% line + mutation coverage (Infection min 96%); mago gates clean; five false-positive mutators ignored with reasons. US4 (console commands) deferred until webware-console ships `CommandCatalogInterface`.
+Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` done (draft PR). Implementation DONE: source + unit/SQLite integration tests written; 100% line + mutation coverage (Infection min 96%); mago gates clean; five false-positive mutators ignored with reasons. US4 (console commands) implemented via `Webware\Console\ConsoleInterface` command registration.
 
 ## Component
 
@@ -44,8 +44,8 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
 - CLI: Symfony Console `migrate`/`status`/`rollback` as thin adapters over the bus; classes live
   in `Webware\Migration\Console\` (NOT moved to webware-console).
 - Command registration: this package's `ConfigProvider` registers the commands under
-  `Webware\Console\Catalog\CommandCatalogInterface::class` (`commands` map) so webware-console's
-  catalog discovers them. Do NOT use `laminas-cli` (that key is mezzio-tooling's; console merges it separately).
+  `Webware\Console\ConsoleInterface::class` (`commands` map) so webware-console's
+  command loader discovers them. Do NOT use `laminas-cli` (that key is mezzio-tooling's; console merges it separately).
 - Concurrency: v1 assumes one runner at a time; apply/revert run in a DB transaction so a
   failed step is never recorded.
 
@@ -53,8 +53,8 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
 
 - `webware-console` is the generic CLI host (owns Symfony Application + `bin/` + config skeleton +
   command discovery); it is **migration-agnostic**. Dependency direction is one-way: **migration → console**.
-- This package registers its commands via `ConfigProvider` under `CommandCatalogInterface::class`;
-  console's `CommandCatalogFactory` reads that key (and merges `laminas-cli` for mezzio-tooling).
+- This package registers its commands via `ConfigProvider` under `ConsoleInterface::class`;
+  console's `CommandLoaderFactory` reads that key (and merges `laminas-cli` for mezzio-tooling).
 - `webware-acl` will ship `Migration016AclRole`/`Migration017AclRule` + a base-role seed
   (Guest/Member/Administrator) seeded via the DB; IMS builds on those. See webware-acl's Phase 4 note.
 - The spec-kit `webware-alignment` preset lives in webware-tools; CI/alignment for this repo is a later step.
@@ -65,8 +65,8 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
 2. (DONE) `/speckit-implement`: source + tests written; 100% line and mutation coverage
    (Infection `minMsi`/`minCoveredMsi` 96, five false-positive mutators ignored with reasons);
    `mago lint`/`analyze`/`guard` clean (no baselines).
-3. Open the implementation draft PR and squash-merge to `0.1.x`.
-4. US4 — Symfony Console commands (`migrate`/`status`/`rollback`) + `webware/webware-console` hard dep:
-   deferred. webware-console is in active development; implement once it ships `CommandCatalogInterface`.
+3. (DONE) Open the implementation draft PR and squash-merge to `0.1.x`.
+4. (DONE) US4 — Symfony Console commands (`migrate`/`status`/`rollback`) registered under
+   `Webware\Console\ConsoleInterface` + `webware/webware-console` hard dep (`0.1.x-dev`).
 5. CI/alignment with webware-tools (wrapper workflow, `mago.toml` extends, `phpunit.xml.dist`).
 6. Queued 2026-08-29: strip the "no redundant namespace prefix" clause from Principle V here, in webware-console, and in the webware-tools `webware-alignment` preset constitution template.

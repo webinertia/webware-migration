@@ -10,15 +10,22 @@ use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Webware\MessageBus\MessageBusInterface;
 use Webware\Migration\CommandHandler\RollbackMigrationHandler;
 use Webware\Migration\CommandHandler\RunMigrationsHandler;
+use Webware\Migration\Console\MigrateCommand;
+use Webware\Migration\Console\RollbackCommand;
+use Webware\Migration\Console\StatusCommand;
 use Webware\Migration\Container\FetchAppliedMigrationsHandlerFactory;
 use Webware\Migration\Container\ListMigrationsHandlerFactory;
+use Webware\Migration\Container\MigrateCommandFactory;
 use Webware\Migration\Container\MigrationDiscoveryFactory;
 use Webware\Migration\Container\MigrationRunnerFactory;
 use Webware\Migration\Container\PhpDbMigrationRepositoryFactory;
+use Webware\Migration\Container\RollbackCommandFactory;
 use Webware\Migration\Container\RollbackMigrationHandlerFactory;
 use Webware\Migration\Container\RunMigrationsHandlerFactory;
+use Webware\Migration\Container\StatusCommandFactory;
 use Webware\Migration\MigrationInterface;
 use Webware\Migration\QueryHandler\FetchAppliedMigrationsHandler;
 use Webware\Migration\QueryHandler\ListMigrationsHandler;
@@ -39,6 +46,9 @@ use function array_map;
 #[CoversClass(RollbackMigrationHandlerFactory::class)]
 #[CoversClass(ListMigrationsHandlerFactory::class)]
 #[CoversClass(FetchAppliedMigrationsHandlerFactory::class)]
+#[CoversClass(MigrateCommandFactory::class)]
+#[CoversClass(RollbackCommandFactory::class)]
+#[CoversClass(StatusCommandFactory::class)]
 #[CoversMethod(MigrationDiscoveryFactory::class, '__invoke')]
 #[CoversMethod(MigrationRunnerFactory::class, '__invoke')]
 #[CoversMethod(PhpDbMigrationRepositoryFactory::class, '__invoke')]
@@ -46,6 +56,9 @@ use function array_map;
 #[CoversMethod(RollbackMigrationHandlerFactory::class, '__invoke')]
 #[CoversMethod(ListMigrationsHandlerFactory::class, '__invoke')]
 #[CoversMethod(FetchAppliedMigrationsHandlerFactory::class, '__invoke')]
+#[CoversMethod(MigrateCommandFactory::class, '__invoke')]
+#[CoversMethod(RollbackCommandFactory::class, '__invoke')]
+#[CoversMethod(StatusCommandFactory::class, '__invoke')]
 final class ContainerFactoriesTest extends TestCase
 {
     use PhpDbAdapterMockTrait;
@@ -79,6 +92,21 @@ final class ContainerFactoriesTest extends TestCase
         static::assertInstanceOf(
             expected: ListMigrationsHandler::class,
             actual  : $handler,
+        );
+    }
+
+    #[Test]
+    public function migrateCommandFactoryWiresBus(): void
+    {
+        $container = $this->containerStub(map: [
+            MessageBusInterface::class => $this->createStub(MessageBusInterface::class),
+        ]);
+
+        $command = (new MigrateCommandFactory())($container);
+
+        static::assertInstanceOf(
+            expected: MigrateCommand::class,
+            actual  : $command,
         );
     }
 
@@ -153,6 +181,21 @@ final class ContainerFactoriesTest extends TestCase
     }
 
     #[Test]
+    public function rollbackCommandFactoryWiresBus(): void
+    {
+        $container = $this->containerStub(map: [
+            MessageBusInterface::class => $this->createStub(MessageBusInterface::class),
+        ]);
+
+        $command = (new RollbackCommandFactory())($container);
+
+        static::assertInstanceOf(
+            expected: RollbackCommand::class,
+            actual  : $command,
+        );
+    }
+
+    #[Test]
     public function rollbackMigrationHandlerFactoryWiresRunner(): void
     {
         $container = $this->containerStub(map: [
@@ -179,6 +222,21 @@ final class ContainerFactoriesTest extends TestCase
         static::assertInstanceOf(
             expected: RunMigrationsHandler::class,
             actual  : $handler,
+        );
+    }
+
+    #[Test]
+    public function statusCommandFactoryWiresBus(): void
+    {
+        $container = $this->containerStub(map: [
+            MessageBusInterface::class => $this->createStub(MessageBusInterface::class),
+        ]);
+
+        $command = (new StatusCommandFactory())($container);
+
+        static::assertInstanceOf(
+            expected: StatusCommand::class,
+            actual  : $command,
         );
     }
 

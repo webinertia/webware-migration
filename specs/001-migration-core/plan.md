@@ -103,7 +103,7 @@ repository is the only php-db-touching layer. This package provides ONLY the
 Symfony Console commands (`migrate`/`status`/`rollback` in
 `Webware\Migration\Console\`) as thin adapters over the bus; it does NOT build
 the Symfony Application or a `bin/` entry point — webware-console owns those and
-discovers this package's commands via `CommandCatalogInterface`.
+discovers this package's commands via `ConsoleInterface`.
 
 ## Complexity Tracking
 

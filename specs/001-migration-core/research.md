@@ -28,7 +28,7 @@ Phase 0 output — resolves the technical unknowns from the plan's Technical Con
 
 ## R-005: CLI command layer
 
-- **Decision**: Symfony Console commands (`migrate`, `status`, `rollback`) as thin adapters that dispatch the message-bus commands/queries. They live in `Webware\Migration\Console\` and are registered by `ConfigProvider` under `Webware\Console\Catalog\CommandCatalogInterface::class` (`commands` map) so webware-console discovers them. This package provides ONLY the commands — it does NOT create the Symfony Application or a `bin/` entry point; that is webware-console's responsibility.
+- **Decision**: Symfony Console commands (`migrate`, `status`, `rollback`) as thin adapters that dispatch the message-bus commands/queries. They live in `Webware\Migration\Console\` and are registered by `ConfigProvider` under `Webware\Console\ConsoleInterface::class` (`commands` map) so webware-console discovers them. This package provides ONLY the commands — it does NOT create the Symfony Application or a `bin/` entry point; that is webware-console's responsibility.
 - **Rationale**: The console PoC already validated Symfony Console; a thin command layer keeps the bus as the real boundary, keeps the Application owned by the generic CLI host, and gives webware-console a uniform command interface to surface.
 - **Alternatives considered**: laminas-cli/mezzio-tooling (rejected for migration's own commands; the `laminas-cli` config key belongs to mezzio-tooling and is merged separately by the console). Building the Symfony Application inside this package (rejected — webware-console owns the Application and `bin/`; migration stays a command-only library).
 

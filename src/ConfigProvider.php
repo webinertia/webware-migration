@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Webware\Migration;
 
+use Webware\Console\ConsoleInterface;
 use Webware\MessageBus\ConfigProvider as BusProvider;
 use Webware\MessageBus\MessageBusInterface;
 use Webware\MessageBus\Middleware\MessageHandlerMiddleware;
@@ -11,6 +12,9 @@ use Webware\Migration\Command\RollbackMigrationCommand;
 use Webware\Migration\Command\RunMigrationsCommand;
 use Webware\Migration\CommandHandler\RollbackMigrationHandler;
 use Webware\Migration\CommandHandler\RunMigrationsHandler;
+use Webware\Migration\Console\MigrateCommand;
+use Webware\Migration\Console\RollbackCommand;
+use Webware\Migration\Console\StatusCommand;
 use Webware\Migration\Query\FetchAppliedMigrationsQuery;
 use Webware\Migration\Query\ListMigrationsQuery;
 use Webware\Migration\QueryHandler\FetchAppliedMigrationsHandler;
@@ -33,8 +37,10 @@ use Webware\Migration\Runner\MigrationRunner;
  *   invokables: array<class-string, class-string>,
  * }
  * @type MigrationConfig = array{migrations: list<string>}
+ * @type ConsoleConfig = array{commands: array<string, class-string>}
  * @type ProviderConfig = array{
  *   dependencies: Dependencies,
+ *   Webware\Console\ConsoleInterface: ConsoleConfig,
  *   Webware\Migration\Runner\MigrationDiscovery: MigrationConfig,
  *   Webware\MessageBus\MessageBusInterface: BusConfig,
  * }
@@ -66,6 +72,20 @@ final class ConfigProvider
     }
 
     /**
+     * @return ConsoleConfig
+     */
+    public function getConsoleConfig(): array
+    {
+        return [
+            'commands' => [
+                'migrate'  => MigrateCommand::class,
+                'rollback' => RollbackCommand::class,
+                'status'   => StatusCommand::class,
+            ],
+        ];
+    }
+
+    /**
      * @return Dependencies
      */
     public function getDependencies(): array
@@ -82,6 +102,9 @@ final class ConfigProvider
                 RollbackMigrationHandler::class      => Container\RollbackMigrationHandlerFactory::class,
                 ListMigrationsHandler::class         => Container\ListMigrationsHandlerFactory::class,
                 FetchAppliedMigrationsHandler::class => Container\FetchAppliedMigrationsHandlerFactory::class,
+                MigrateCommand::class                => Container\MigrateCommandFactory::class,
+                StatusCommand::class                 => Container\StatusCommandFactory::class,
+                RollbackCommand::class               => Container\RollbackCommandFactory::class,
             ],
             'invokables' => [
                 MigrationChecksum::class => MigrationChecksum::class,
@@ -106,6 +129,7 @@ final class ConfigProvider
     {
         return [
             'dependencies'             => $this->getDependencies(),
+            ConsoleInterface::class    => $this->getConsoleConfig(),
             MigrationDiscovery::class  => $this->getMigrationConfig(),
             MessageBusInterface::class => $this->getBusConfig(),
         ];
