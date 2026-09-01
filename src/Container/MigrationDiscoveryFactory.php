@@ -25,7 +25,7 @@ final readonly class MigrationDiscoveryFactory
         $config = $container->get(id: 'config');
 
         /** @var array{migrations?: list<string>} $migrationConfig */
-        $migrationConfig = $config[MigrationDiscovery::class] ?? [];
+        $migrationConfig = $config[MigrationInterface::class] ?? [];
 
         $migrations = [];
         foreach ($migrationConfig['migrations'] ?? [] as $service) {

@@ -41,7 +41,7 @@ use Webware\Migration\Runner\MigrationRunner;
  * @type ProviderConfig = array{
  *   dependencies: Dependencies,
  *   Webware\Console\ConsoleInterface: ConsoleConfig,
- *   Webware\Migration\Runner\MigrationDiscovery: MigrationConfig,
+ *   Webware\Migration\MigrationInterface: MigrationConfig,
  *   Webware\MessageBus\MessageBusInterface: BusConfig,
  * }
  * @internal
@@ -130,7 +130,7 @@ final class ConfigProvider
         return [
             'dependencies'             => $this->getDependencies(),
             ConsoleInterface::class    => $this->getConsoleConfig(),
-            MigrationDiscovery::class  => $this->getMigrationConfig(),
+            MigrationInterface::class  => $this->getMigrationConfig(),
             MessageBusInterface::class => $this->getBusConfig(),
         ];
     }

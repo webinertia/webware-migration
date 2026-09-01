@@ -22,6 +22,7 @@ use Webware\Migration\Console\RollbackCommand;
 use Webware\Migration\Console\StatusCommand;
 use Webware\Migration\Container\MigrateCommandFactory;
 use Webware\Migration\Container\MigrationDiscoveryFactory;
+use Webware\Migration\MigrationInterface;
 use Webware\Migration\Query\FetchAppliedMigrationsQuery;
 use Webware\Migration\Query\ListMigrationsQuery;
 use Webware\Migration\QueryHandler\FetchAppliedMigrationsHandler;
@@ -131,7 +132,7 @@ final class ConfigProviderTest extends TestCase
             array: $config,
         );
         static::assertArrayHasKey(
-            key  : MigrationDiscovery::class,
+            key  : MigrationInterface::class,
             array: $config,
         );
         static::assertArrayHasKey(
