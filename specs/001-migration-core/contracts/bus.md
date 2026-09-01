@@ -7,7 +7,8 @@
 
 ## Commands (write)
 
-- `RunMigrationsCommand` → `CommandResult`; applies all pending migrations in version order.
+- `ReconcileCommand` → `CommandResult`; installs (Schema + Seed) or upgrades (migrations) based on recorded state.
+- `RunMigrationsCommand` → `CommandResult`; applies all pending migrations in version order (upgrade path).
 - `RollbackMigrationCommand` (`steps` or target `version`) → `CommandResult`; reverts applied migrations in reverse order.
 
 ## Boundary rules

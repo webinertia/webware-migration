@@ -20,14 +20,13 @@ interface MigrationDiscoveryInterface
 
 ## Semantics
 
-- The merged migration directories are injected by the factory and are not part
-  of this contract. Every component's `ConfigProvider` contributes to
-  `migrations.paths`; config-aggregator appends each numeric-keyed entry, so all
-  directories survive and their order is irrelevant.
-- `discover()` reads the filesystem: for each path it runs `glob('Migration*.php')`,
-  and `pathinfo(..., PATHINFO_FILENAME)` yields the class name whose leading
-  zero-padded `NNN` is the version. The owning package is derived from the class
-  namespace via Composer's PSR-4 map.
+- Migration directories come from each package's `MigrationProviderInterface`
+  (discovered via its Composer `extra.webware-migration.provider` key), resolved
+  by the reconciler before calling `discover()`.
+- `discover()` reads the filesystem: for each directory it runs
+  `glob('Migration*.php')`, and `pathinfo(..., PATHINFO_FILENAME)` yields the
+  class name whose leading zero-padded `NNN` is the version. The owning package
+  is the declaring package.
 
 ## Ordering
 

@@ -12,25 +12,35 @@ Validation guide — proves the feature end-to-end. Implementation details belon
 
 1. Install dependencies: `composer install`.
 
-2. Define two sample migrations (e.g. `Migration001CreateRoles`, `Migration002AddRoleColumn`) in a migrations directory, each implementing [MigrationInterface](./contracts/MigrationInterface.md), and register the directory in a `ConfigProvider` under `migrations.paths`.
+2. In a component, declare its migration surface in `composer.json`:
+   ```json
+   "extra": { "webware-migration": { "provider": "Webware\\Acl\\MigrationProvider" } }
+   ```
+   and implement [MigrationProviderInterface](./contracts/MigrationProviderInterface.md)
+   (migration paths + optional [SeedInterface](./contracts/SeedInterface.md)).
+   Until php-db ships declarative schema, the component's schema is expressed
+   through php-db DDL types in its migrations.
 
-3. Run the migrate command.
+3. Run the install command against an empty database.
 
-   **Expected**: both migrations apply in ascending order; a `schema_migrations` table exists with two rows.
+   **Expected**: the component's schema (interim: php-db DDL) and seed apply;
+   `component_versions` records the installed version; no `schema_migrations` rows.
 
-4. Run migrate again.
+4. Run install again.
 
-   **Expected**: no migration re-applies; output reports the schema is up to date (exit 0).
+   **Expected**: no-op — the component is already at its installed version.
 
-5. Run the status command.
+5. Bump the component, add `Migration001AddRoleCode`, and run the migrate command.
 
-   **Expected**: both migrations listed as applied, none pending.
+   **Expected**: the delta applies and a `schema_migrations` row is written.
 
-6. Run the rollback command for one step.
+6. Run the status command.
 
-   **Expected**: the second migration is reverted and its record removed; the first remains applied.
+   **Expected**: applied vs pending listed, with checksum state.
 
-7. Re-run migrate to confirm the reverted migration applies again.
+7. Run the rollback command for one step.
+
+   **Expected**: the most recent migration reverts and its record is removed.
 
 ## Success
 

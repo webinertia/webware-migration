@@ -16,7 +16,7 @@ Phase 0 output — resolves the technical unknowns from the plan's Technical Con
 
 ## R-003: Migration identity and ordering
 
-- **Decision**: Each migration class is named `Migration{NNN}{PascalDescription}` (zero-padded `NNN`) and lives in the owning component's own namespace (e.g. `Webware\Acl\Migration\Migration001CreateRoles`). The version is the leading integer parsed from the filename; the owning package is derived from the namespace via Composer's PSR-4 map. Within a package, order is the `glob()` filename order. Across packages, order is the Composer dependency graph (topological): a package's migrations run after the migrations of every package it requires.
+- **Decision**: Each migration class is named `Migration{NNN}{PascalDescription}` (zero-padded `NNN`) and lives in the owning component's own namespace (e.g. `Webware\Acl\Migration\Migration001CreateRoles`). The version is the leading integer parsed from the filename; the owning package is known directly from the package that declared it (via its `MigrationProvider`). Within a package, order is the `glob()` filename order. Across packages, order is the Composer dependency graph (topological): a package's migrations run after the migrations of every package it requires.
 - **Rationale**: Per-package versions remove cross-component version collisions; filename order is engine-level (no const introspection, no config ordering); the Composer graph is acyclic by construction and already resolved at install time.
 - **Alternatives considered**: A single global integer version (rejected — collisions across components); a `VERSION` const plus config-list registration (rejected — more authoring and a "forgot to register" footgun); timestamp naming (rejected — not deterministic for seed workflows).
 
@@ -44,11 +44,11 @@ Phase 0 output — resolves the technical unknowns from the plan's Technical Con
 - **Rationale**: Detects an already-applied migration that was edited later, so schema state can never silently diverge from the code that was run (Flyway does this for the same reason). It directly serves FR-011 and SC-006.
 - **Alternatives considered**: No checksum (rejected — silent drift); hashing the class body via reflection (rejected — the source file is the canonical unit and the simplest to hash; file-less migrations are out of scope).
 
-## R-008: Discovery via ConfigProvider directories
+## R-008: Discovery via MigrationProvider
 
-- **Decision**: Each component's `ConfigProvider` declares its migrations directory under a shared config key, laminas-view template-dir style: `'migrations' => ['paths' => [__DIR__ . '/../src/Migration']]`. Config-aggregator accumulates every path (numeric-keyed list append). The runner `glob()`s each path for `Migration*.php`; `pathinfo(..., PATHINFO_FILENAME)` yields the class name, and the zero-padded filename order is the within-package order. Adding a file is registration — no per-migration config, no `Webware\Migration` namespace shadowing.
-- **Rationale**: Mirrors the proven laminas-view `template_path_stack` merge; eliminates the "forgot to register a migration" footgun; keeps migrations in their component's own namespace so FQCNs cannot collide across components.
-- **Alternatives considered**: Shared `Webware\Migration\<Component>\` PSR-4 prefix (rejected — namespace inversion; the migration package owns `Webware\Migration`); per-migration config registration (rejected — silent-skip footgun).
+- **Decision**: Each migration-shipping package declares its migration surface through a `MigrationProviderInterface`, discovered via its Composer `extra.webware-migration.provider` key. The reconciler reads `extra`, instantiates the provider, and globs each of its `migrationPaths()` for `Migration*.php`; `pathinfo(..., PATHINFO_FILENAME)` yields the class name, and the zero-padded filename order is the within-package order. Adding a file is registration. Package identity is direct (the declaring package), not namespace-derived.
+- **Rationale**: `extra` is a billboard developers read; the provider is the typed, `__DIR__`-aware contract (the laminas `extra` → `ConfigProvider` pattern, one level down); direct package identity removes the namespace → package reverse-mapping.
+- **Alternatives considered**: ConfigProvider `migrations.paths` merge (rejected — no billboard, second source of truth); per-migration config registration (rejected — silent-skip footgun); shared `Webware\Migration\<Component>\` PSR-4 prefix (rejected — namespace inversion).
 
 ## R-009: Cross-package ordering and compatibility
 
@@ -61,3 +61,33 @@ Phase 0 output — resolves the technical unknowns from the plan's Technical Con
 - **Decision**: `MigrationRunnerInterface` (`migrate()`/`rollback()`) and `MigrationDiscoveryInterface` (directory-glob discovery) are interfaces; concrete `final readonly` classes implement them. `MigrationInterface` is behavior-only: `up()`, `down()`, `getDescription()` — the version is supplied by discovery (parsed from the filename), not by the instance.
 - **Rationale**: Other components must be able to type-hint the contracts; concrete service classes are wiring details.
 - **Alternatives considered**: `final readonly` concrete services (rejected — nothing outside the package can depend on them as a contract).
+
+## R-011: Schema / Seed / Migration split
+
+- **Decision**: Three artifacts, two lifecycles. Install (fresh) applies Schema (full declarative schema, owned by php-db) then Seed (base/reference data); Upgrade (version bump) applies Migrations (versioned deltas). A fresh install never replays migration history; an upgrade applies only the migrations between the recorded and installed versions.
+- **Rationale**: Fresh installs stay fast and clean; schema definition lives declaratively in php-db rather than scattered across migration history; old migrations become squashable for new installs.
+- **Alternatives considered**: Everything-is-a-migration (rejected — fresh installs replay history and schema definition is entangled with change history).
+
+## R-012: Reconcile core
+
+- **Decision**: A single `MigrationReconcilerInterface` compares installed packages (via `extra` + provider + `Composer\InstalledVersions` versions) against recorded state (`component_versions` + `schema_migrations`): no record → install (Schema + Seed); recorded version older than installed → upgrade (migrations); match → no-op. Checksums make migration state byte-exact.
+- **Rationale**: One stateful core serves every trigger (CLI and Composer plugin) and makes the install-vs-upgrade decision from the tracking table, not the Composer verb.
+- **Alternatives considered**: Keying off `install` vs `update` Composer events (rejected — `composer install` is also the deploy verb and carries committed bumps).
+
+## R-013: Composer plugin trigger
+
+- **Decision**: A Composer plugin subscribes to `post-install-cmd`/`post-update-cmd` (after the autoloader dump), resolves the reconciler + adapter from the hosting application's container (the host app's when hosted, webware-console's own scaffold when standalone), and runs the reconcile. The plugin wraps the adapter acquisition in try/catch (php-db `ExceptionInterface` + PSR-11 container exceptions) so an unreachable/unconfigured database is a no-op that never breaks `composer install`.
+- **Rationale**: Matches `laminas-component-installer` (package-event-driven setup); the container is the source of DB config; the guard keeps Composer robust.
+- **Alternatives considered**: Per-package `POST_PACKAGE_INSTALL` triggers (rejected — just-installed classes aren't autoloadable until the dump); deferred reconcile (rejected — the laminas precedent acts inline).
+
+## R-014: Seed and provider contracts
+
+- **Decision**: `SeedInterface` (distinct from `MigrationInterface`) holds a component's base/reference data and runs at install time. `MigrationProviderInterface` declares a package's migration surface (`migrationPaths()` + `seed()`; future `schema()`), discovered via `extra.webware-migration.provider`.
+- **Rationale**: Seed has different semantics from a migration (install-time, full base data), so it warrants its own contract; the provider is the typed, per-package declaration seam.
+- **Alternatives considered**: Seeds as `Migration{NNN}Seed{…}` migrations (rejected — conflates install-time data with upgrade deltas); provider metadata in ConfigProvider config (rejected — no billboard).
+
+## R-015: Schema changes via php-db DDL types
+
+- **Decision**: Migrations MUST express schema changes through php-db DDL types (`CreateTable`, `AlterTable`, `Column`, `Constraint`, `Sql`) — never raw SQL strings. Schema definition and introspection belong to php-db, not this package.
+- **Rationale**: The DDL types are already php-db's schema-definition surface; when php-db ships declarative schema + differ, migrations generated from it will emit the same types, so nothing needs rewriting.
+- **Alternatives considered**: Raw SQL in migrations (rejected — untransformable when the declarative-schema layer lands); a schema-definition abstraction in this package (rejected — php-db's future feature built in the wrong layer).

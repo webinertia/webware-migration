@@ -29,7 +29,7 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
   - plan (`/speckit-plan`) — MERGED (plan.md, research.md R-001…R-010, data-model.md,
     contracts/, quickstart.md).
   - tasks (`/speckit-tasks`) — DONE for T001–T034 (Phase 1–7 implemented); Phase 8
-    (T035–T043, multi-component rework) pending.
+    (T035–T045, Schema/Seed/Migration redesign) pending.
 - Workflow: each step = own branch + squash-merged PR to `0.1.x`. Conventional Commits;
   commit author must be `Joey Smith <jsmith@webinertia.net>` (never derive an identity).
 
@@ -37,20 +37,30 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
 
 - Bus-aware, persistence-agnostic: message-bus command/query orchestration; repositories
   bus-agnostic (natural types only); no php-db `ResultSet`/`RowPrototype` crosses the bus boundary.
+- Schema/Seed/Migration split: install (fresh) applies Schema (declarative, php-db) + Seed (base data);
+  upgrade (version bump) applies Migrations (deltas). A fresh install never replays migration history.
 - `MigrationInterface`: `up(): void`, `down(): void`, `getDescription(): string`. NO `getVersion()` —
-  version is parsed from the filename at discovery.
+  version is parsed from the filename at discovery. A Migration is an upgrade-time delta.
+- `SeedInterface`: `seed(): void` — install-time base/reference data; distinct from migrations.
+- `MigrationProviderInterface`: `migrationPaths(): array` + `seed(): ?SeedInterface` — a package's
+  migration surface, discovered via `extra.webware-migration.provider` (laminas `extra` → ConfigProvider pattern).
 - Naming `Migration{NNN}{PascalDescription}` (zero-padded `NNN`) in the component's OWN namespace
   (e.g. `Webware\Acl\Migration\Migration001CreateRoles`); version is package-scoped.
-- Tracking table `schema_migrations` with composite PK `(package, version)` + description, applied_at, checksum.
-- Discovery: each component's `ConfigProvider` returns its migrations directory under
-  `migrations.paths` (laminas-view `template_path_stack` style); the runner globs each path for
-  `Migration*.php`. Adding a file is registration — no per-migration config, no `Webware\Migration`
-  namespace shadowing.
-- Ordering: within a package by filename (glob default alphabetical, zero-padded); across packages
-  by the Composer dependency graph (topological).
+- Tracking: `component_versions` (package, release version, installed_at) + `schema_migrations`
+  composite PK `(package, version)` + description, applied_at, checksum. Same DB (transactionality).
+- Discovery: read `extra.webware-migration.provider` → instantiate provider → glob `migrationPaths()`
+  for `Migration*.php`; filename order = version order. Package identity is the declaring package.
+- Reconcile: installed (providers + `Composer\InstalledVersions`) vs recorded → no record = install
+  (Schema + Seed); older version = upgrade (migrations); match = no-op. Checksums make state byte-exact.
+- Ordering: within a package by filename; across packages by the Composer dependency graph (topological).
 - Compatibility: Composer's job (`require`/`conflict` in composer.json) — never checked by the runner.
-- Contracts are interfaces: `MigrationRunnerInterface` (`migrate()`/`rollback()`),
-  `MigrationDiscoveryInterface` (`discover()`; merged paths injected by its factory). Concrete `final` classes implement them.
+- Composer plugin: `post-install-cmd`/`post-update-cmd` → resolve reconciler + adapter from the HOST
+  app container (webware-console's own scaffold only when standalone) → reconcile. Guarded no-op:
+  try/catch php-db `ExceptionInterface` + PSR-11 container exceptions; CLI is the fallback.
+- DDL discipline: migrations MUST express schema via php-db DDL types (`CreateTable`/`Column`/`Sql`),
+  never raw SQL. Schema definition + introspection belong to php-db, not this package.
+- Contracts are interfaces: `MigrationInterface`, `SeedInterface`, `MigrationProviderInterface`,
+  `MigrationReconcilerInterface`, `MigrationRunnerInterface`, `MigrationDiscoveryInterface`.
 - **Integrity checksum (FR-011 / R-007)**: SHA-256 of the migration source file recorded at
   apply time; a mismatch on status/apply is a hard failure. One class per file; file-less out of scope.
 - CLI: Symfony Console `migrate`/`status`/`rollback` as thin adapters over the bus; classes live
@@ -82,7 +92,8 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
    `Webware\Console\ConsoleInterface` + `webware/webware-console` hard dep (`0.1.x-dev`).
 5. CI/alignment with webware-tools (wrapper workflow, `mago.toml` extends, `phpunit.xml.dist`).
 6. Queued 2026-08-29: strip the "no redundant namespace prefix" clause from Principle V here, in webware-console, and in the webware-tools `webware-alignment` preset constitution template.
-7. (IN PROGRESS 2026-08-31) Multi-component redesign — decisions locked into `specs/001-migration-core/`
+7. (IN PROGRESS 2026-08-31) Schema/Seed/Migration redesign — decisions locked into `specs/001-migration-core/`
    (spec/plan/data-model/research/contracts/tasks/quickstart amended on branch
-   `amend/multi-component-migrations`); implement Phase 8 tasks T035–T043 in `tasks.md`.
-   NOT yet implemented in `src/`.
+   `amend/multi-component-migrations`); implement Phase 8 tasks T035–T045 in `tasks.md`.
+   NOT yet implemented in `src/`. Deferred: php-db declarative Schema + introspection;
+   `extra.webware-migration.schema` key; interactive DB config wizard (prompt on no-op).

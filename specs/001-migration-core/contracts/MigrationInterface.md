@@ -2,6 +2,10 @@
 
 Namespace: `Webware\Migration`
 
+A `Migration` is a versioned **upgrade-time delta** — applied only when a
+component's recorded version is older than its installed version. Fresh installs
+use Schema + Seed instead.
+
 ## Signature
 
 ```php

@@ -6,15 +6,17 @@
 
 ## Summary
 
-Provide the core migration mechanism for the Webware component stack: a
-`MigrationInterface` contract, deterministic discovery (directory glob) and
-ordering (filename within a package, Composer dependency graph across packages),
-a durable `(package, version)` tracking record so applied migrations are never
-re-run, reverse-order rollback, and command-line commands for
-migrate/status/rollback. Built as a PHP library using the message bus for
-command/query orchestration and php-db for database abstraction. Applied
-migrations are integrity-checked with a SHA-256 source checksum so a migration
-modified after being applied is detected.
+Provide the migration mechanism for the Webware component stack: a
+`MigrationInterface` delta contract, a distinct `SeedInterface`, per-package
+declarations via `MigrationProviderInterface` (discovered through each package's
+`extra.webware-migration.provider`), a stateful reconcile core that installs
+(Schema + Seed) or upgrades (migrations) based on recorded state, a durable
+`(package, version)` tracking record, reverse-order rollback, a Composer plugin
+trigger (`post-install-cmd`/`post-update-cmd`) with a guarded no-op, and
+`install`/`migrate`/`status`/`rollback` commands. Built as a PHP library using
+the message bus for command/query orchestration and php-db for database
+abstraction. Applied migrations are integrity-checked with a SHA-256 source
+checksum so a migration modified after being applied is detected.
 
 ## Technical Context
 
@@ -22,7 +24,7 @@ modified after being applied is detected.
 
 **Primary Dependencies**: webware/webware-core (shared contracts), webware/message-bus ^2.0.0-beta.1 (command/query orchestration), php-db/phpdb (database abstraction), webware/webware-console (hard dep — supplies the Symfony Console command surface)
 
-**Storage**: Relational database via the php-db abstraction — PostgreSQL, MySQL, SQLite; `schema_migrations` tracking table
+**Storage**: Relational database via the php-db abstraction — PostgreSQL, MySQL, SQLite; `component_versions` + `schema_migrations` tracking tables
 
 **Testing**: PHPUnit 13.3 (strict: coverage metadata, mock/stub split), Infection mutation testing, Mago format/lint/analyze/guard
 
@@ -66,20 +68,28 @@ specs/[###-feature]/
 
 ```text
 src/
-├── MigrationInterface.php            # migration contract (up/down/getDescription)
+├── MigrationInterface.php            # migration delta contract (up/down/getDescription)
+├── SeedInterface.php                 # install-time base-data contract
+├── MigrationProviderInterface.php    # per-package declaration (migrationPaths/seed)
+├── MigrationReconcilerInterface.php  # install-vs-upgrade reconcile contract
 ├── Migration/
 │   └── AbstractMigration.php         # optional base implementation
+├── Reconciler/
+│   └── MigrationReconciler.php       # concrete reconciler (installed vs recorded)
 ├── Runner/
-│   ├── MigrationRunnerInterface.php  # migrate/rollback contract
+│   ├── MigrationRunnerInterface.php  # migrate/rollback contract (upgrade path)
 │   ├── MigrationRunner.php           # concrete runner implementing the interface
 │   ├── MigrationDiscoveryInterface.php # discover contract
-│   └── MigrationDiscovery.php        # directory glob + package/version derivation + ordering
+│   └── MigrationDiscovery.php        # provider glob + version derivation + ordering
 ├── ReadModel/
 │   └── DiscoveredMigration.php       # package + version + migration instance
 ├── Repository/
 │   ├── MigrationRepositoryInterface.php
-│   └── PhpDbMigrationRepository.php  # bus-agnostic persistence (schema_migrations)
+│   └── PhpDbMigrationRepository.php  # persistence (component_versions + schema_migrations)
+├── Plugin/
+│   └── MigrationInstallerPlugin.php  # Composer plugin (post-install/update, guarded no-op)
 ├── Command/
+│   ├── ReconcileCommand.php
 │   ├── RunMigrationsCommand.php
 │   └── RollbackMigrationCommand.php
 ├── CommandHandler/
@@ -91,12 +101,13 @@ src/
 ├── QueryHandler/
 │   ├── ListMigrationsHandler.php
 │   └── FetchAppliedMigrationsHandler.php
-├── Console/                          # Symfony Console commands (migrate/status/rollback)
+├── Console/                          # Symfony Console commands (install/migrate/status/rollback)
+│   ├── InstallCommand.php
 │   ├── MigrateCommand.php
 │   ├── StatusCommand.php
 │   └── RollbackCommand.php
 ├── Container/                        # factories for handlers + repository + runner
-└── ConfigProvider.php                # DI wiring + command_map/query_map + command catalog registration
+└── ConfigProvider.php                # DI wiring + command_map/query_map + command registration
 
 test/
 ├── unit/
@@ -111,12 +122,14 @@ Symfony Console commands (`migrate`/`status`/`rollback` in
 the Symfony Application or a `bin/` entry point — webware-console owns those and
 discovers this package's commands via `ConsoleInterface`.
 
-Discovery is directory-based: each component's `ConfigProvider` contributes its
-migration directory under `migrations.paths`; `MigrationDiscovery` globs those
-paths and derives each migration's package (from namespace) and version (from
-filename). Contracts are interfaces (`MigrationRunnerInterface`,
-`MigrationDiscoveryInterface`) so other packages type-hint the contracts, never
-the concrete `final` classes.
+Discovery is provider-based: each package declares its migration surface through
+a `MigrationProviderInterface`, discovered via `extra.webware-migration.provider`.
+The reconciler globs each provider's `migrationPaths()`, derives version from
+filename, and records `(package, version)` — the package is the declaring
+package, not namespace-derived. Contracts are interfaces (`MigrationInterface`,
+`SeedInterface`, `MigrationProviderInterface`, `MigrationReconcilerInterface`,
+`MigrationRunnerInterface`, `MigrationDiscoveryInterface`) so other packages
+type-hint the contracts, never the concrete `final` classes.
 
 ## Complexity Tracking
 

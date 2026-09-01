@@ -120,20 +120,23 @@
 - [ ] T033 [P] Update `README.md` with badges and usage
 - [ ] T034 Run `quickstart.md` validation end-to-end
 
-## Phase 8: Multi-component rework (package-scoped identity + directory discovery)
+## Phase 8: Schema/Seed/Migration redesign (install vs upgrade + Composer trigger)
 
-**Purpose**: Replace the single global version with `(package, version)`, and
-per-migration config registration with ConfigProvider directory globbing.
+**Purpose**: Replace the single global version + config-list registration with the
+Schema / Seed / Migration model, a stateful reconcile, and a Composer plugin
+trigger.
 
-- [ ] T035 Remove `getVersion()` from `MigrationInterface`; version is parsed from the filename by discovery.
-- [ ] T036 Add `package` to `schema_migrations` as a composite primary key with `version`; update `PhpDbMigrationRepository` (R-004).
-- [ ] T037 Add `package` to the `AppliedMigration` / `MigrationInfo` read-models.
-- [ ] T038 Introduce `MigrationRunnerInterface` and `MigrationDiscoveryInterface`; make the concrete services implement them.
-- [ ] T039 Change discovery to glob the merged `migrations.paths` directories, derive package from namespace and version from filename, and order packages by the Composer dependency graph.
-- [ ] T040 Change `ConfigProvider` to expose `migrations.paths` (directories) instead of a migration class list; update `MigrationDiscoveryFactory`.
-- [ ] T041 Update `AbstractMigration` to drop version extraction (keep description derivation from the class name).
-- [ ] T042 Update unit + integration tests and fixtures for package-scoped identity and directory discovery.
-- [ ] T043 Re-run quality gates: 100% line + mutation coverage, `mago` clean.
+- [ ] T035 Introduce `SeedInterface`, `MigrationProviderInterface`, and `MigrationReconcilerInterface`; expose the runner/discovery/reconciler as interfaces.
+- [ ] T036 Remove `getVersion()` from `MigrationInterface`; version is parsed from the filename by discovery.
+- [ ] T037 Add `component_versions` (package, version, installed_at) and make `schema_migrations` composite `(package, version)`; update `PhpDbMigrationRepository`.
+- [ ] T038 Add `package` to the `AppliedMigration` / `MigrationInfo` read-models.
+- [ ] T039 Implement the reconciler: installed (providers + `Composer\InstalledVersions`) vs recorded (component_versions + schema_migrations) → install / upgrade / no-op.
+- [ ] T040 Change discovery to read `extra.webware-migration.provider`, instantiate each `MigrationProvider`, and glob its `migrationPaths()`; package identity is the declaring package.
+- [ ] T041 Implement the Composer plugin (`post-install-cmd`/`post-update-cmd`) resolving the reconciler + adapter from the host container, with a guarded no-op on unreachable DB.
+- [ ] T042 Add `install` + `reconcile` CLI commands alongside `migrate`/`status`/`rollback`.
+- [ ] T043 Enforce "DDL via php-db types, never raw SQL" in migration code and fixtures.
+- [ ] T044 Update unit + integration tests and fixtures for the Schema/Seed/Migration model.
+- [ ] T045 Re-run quality gates: 100% line + mutation coverage, `mago` clean.
 
 ## Dependencies & Execution Order
 
