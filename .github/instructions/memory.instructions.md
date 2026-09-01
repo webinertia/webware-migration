@@ -42,14 +42,15 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
 - `MigrationInterface`: `up(): void`, `down(): void`, `getDescription(): string`. NO `getVersion()` —
   version is parsed from the filename at discovery. A Migration is an upgrade-time delta.
 - `SeedInterface`: `seed(): void` — install-time base/reference data; distinct from migrations.
-- `MigrationProviderInterface`: `migrationPaths(): array` + `seed(): ?SeedInterface` — a package's
-  migration surface, discovered via `extra.webware-migration.provider` (laminas `extra` → ConfigProvider pattern).
+- `MigrationProviderInterface`: `__invoke(): array` returning `migrations` (paths) + `seed`
+  (class-string) — a package's migration surface, discovered via `extra.webware-migration.provider`
+  (laminas `extra` → ConfigProvider pattern).
 - Naming `Migration{NNN}{PascalDescription}` (zero-padded `NNN`) in the component's OWN namespace
   (e.g. `Webware\Acl\Migration\Migration001CreateRoles`); version is package-scoped.
 - Tracking: `component_versions` (package, release version, installed_at) + `schema_migrations`
   composite PK `(package, version)` + description, applied_at, checksum. Same DB (transactionality).
-- Discovery: read `extra.webware-migration.provider` → instantiate provider → glob `migrationPaths()`
-  for `Migration*.php`; filename order = version order. Package identity is the declaring package.
+- Discovery: read `extra.webware-migration.provider` → instantiate provider → glob the `migrations`
+  paths it returns for `Migration*.php`; filename order = version order. Package identity is the declaring package.
 - Reconcile: installed (providers + `Composer\InstalledVersions`) vs recorded → no record = install
   (Schema + Seed); older version = upgrade (migrations); match = no-op. Checksums make state byte-exact.
 - Ordering: within a package by filename; across packages by the Composer dependency graph (topological).

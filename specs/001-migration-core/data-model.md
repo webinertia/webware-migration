@@ -23,7 +23,7 @@
 
 ### MigrationProvider (in-memory declaration)
 
-- A package's declaration of its migration surface: `migrationPaths()` and `seed()`.
+- A package's declaration of its migration surface: a ConfigProvider-style `__invoke()` returning `migrations` paths and a `seed` class.
 - Discovered via the package's Composer `extra.webware-migration.provider` key.
 
 ### ComponentRecord (persisted record)

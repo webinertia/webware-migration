@@ -46,7 +46,7 @@ Phase 0 output — resolves the technical unknowns from the plan's Technical Con
 
 ## R-008: Discovery via MigrationProvider
 
-- **Decision**: Each migration-shipping package declares its migration surface through a `MigrationProviderInterface`, discovered via its Composer `extra.webware-migration.provider` key. The reconciler reads `extra`, instantiates the provider, and globs each of its `migrationPaths()` for `Migration*.php`; `pathinfo(..., PATHINFO_FILENAME)` yields the class name, and the zero-padded filename order is the within-package order. Adding a file is registration. Package identity is direct (the declaring package), not namespace-derived.
+- **Decision**: Each migration-shipping package declares its migration surface through a `MigrationProviderInterface`, discovered via its Composer `extra.webware-migration.provider` key. The reconciler reads `extra`, instantiates the provider, and globs each directory from the provider's `migrations` key for `Migration*.php`; `pathinfo(..., PATHINFO_FILENAME)` yields the class name, and the zero-padded filename order is the within-package order. Adding a file is registration. Package identity is direct (the declaring package), not namespace-derived.
 - **Rationale**: `extra` is a billboard developers read; the provider is the typed, `__DIR__`-aware contract (the laminas `extra` → `ConfigProvider` pattern, one level down); direct package identity removes the namespace → package reverse-mapping.
 - **Alternatives considered**: ConfigProvider `migrations.paths` merge (rejected — no billboard, second source of truth); per-migration config registration (rejected — silent-skip footgun); shared `Webware\Migration\<Component>\` PSR-4 prefix (rejected — namespace inversion).
 
@@ -82,7 +82,7 @@ Phase 0 output — resolves the technical unknowns from the plan's Technical Con
 
 ## R-014: Seed and provider contracts
 
-- **Decision**: `SeedInterface` (distinct from `MigrationInterface`) holds a component's base/reference data and runs at install time. `MigrationProviderInterface` declares a package's migration surface (`migrationPaths()` + `seed()`; future `schema()`), discovered via `extra.webware-migration.provider`.
+- **Decision**: `SeedInterface` (distinct from `MigrationInterface`) holds a component's base/reference data and runs at install time. `MigrationProviderInterface` declares a package's migration surface (`__invoke()` returning `migrations` paths + `seed` class; future `schema` key), discovered via `extra.webware-migration.provider`.
 - **Rationale**: Seed has different semantics from a migration (install-time, full base data), so it warrants its own contract; the provider is the typed, per-package declaration seam.
 - **Alternatives considered**: Seeds as `Migration{NNN}Seed{…}` migrations (rejected — conflates install-time data with upgrade deltas); provider metadata in ConfigProvider config (rejected — no billboard).
 

@@ -70,7 +70,7 @@ specs/[###-feature]/
 src/
 ├── MigrationInterface.php            # migration delta contract (up/down/getDescription)
 ├── SeedInterface.php                 # install-time base-data contract
-├── MigrationProviderInterface.php    # per-package declaration (migrationPaths/seed)
+├── MigrationProviderInterface.php    # per-package declaration (__invoke: migrations + seed)
 ├── MigrationReconcilerInterface.php  # install-vs-upgrade reconcile contract
 ├── Migration/
 │   └── AbstractMigration.php         # optional base implementation

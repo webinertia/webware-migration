@@ -2,36 +2,36 @@
 
 Namespace: `Webware\Migration`
 
+A ConfigProvider-style declaration of a package's migration surface.
+
 ## Signature
 
 ```php
 interface MigrationProviderInterface
 {
     /**
-     * Migration directories to glob for `Migration*.php`.
-     *
-     * @return list<string>
+     * @return array{
+     *     migrations: list<string>,
+     *     seed: class-string<SeedInterface>|null,
+     * }
      */
-    public function migrationPaths(): array;
-
-    public function seed(): ?SeedInterface;
+    public function __invoke(): array;
 }
 ```
 
 ## Semantics
 
-- A package that ships migrations implements this contract and declares it in
-  `composer.json` under `extra.webware-migration.provider`.
-- `migrationPaths()` returns `__DIR__`-relative directories; the reconciler globs
-  each for `Migration*.php`.
-- `seed()` returns the component's base data (or null when it has none), applied
-  at install time.
+- `migrations` — directories to glob for `Migration*.php`, consumed by
+  `MigrationDiscoveryInterface`.
+- `seed` — the component's base-data class (resolved to a `SeedInterface`) or
+  null when it has none; applied at install time.
 
 ## Discovery
 
-- The reconciler reads `extra.webware-migration.provider`, instantiates the
-  provider, and calls it — the laminas `extra` → `ConfigProvider` pattern.
+- A package declares its provider in `composer.json` under
+  `extra.webware-migration.provider`; the reconciler instantiates and invokes it
+  — the laminas `extra` → `ConfigProvider` pattern.
 
 ## Future
 
-- A `schema()` method joins this contract when php-db ships declarative schema.
+- A `schema` key joins this array when php-db ships declarative schema.

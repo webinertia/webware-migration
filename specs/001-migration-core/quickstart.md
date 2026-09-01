@@ -17,7 +17,7 @@ Validation guide — proves the feature end-to-end. Implementation details belon
    "extra": { "webware-migration": { "provider": "Webware\\Acl\\MigrationProvider" } }
    ```
    and implement [MigrationProviderInterface](./contracts/MigrationProviderInterface.md)
-   (migration paths + optional [SeedInterface](./contracts/SeedInterface.md)).
+   (a config array of migration paths + optional [SeedInterface](./contracts/SeedInterface.md)).
    Until php-db ships declarative schema, the component's schema is expressed
    through php-db DDL types in its migrations.
 
