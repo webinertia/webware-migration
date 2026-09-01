@@ -36,7 +36,7 @@ use Webware\Migration\Runner\MigrationRunner;
  *   factories: array<class-string, class-string>,
  *   invokables: array<class-string, class-string>,
  * }
- * @type MigrationConfig = array{migrations: list<string>}
+ * @type MigrationConfig = list<string>
  * @type ConsoleConfig = array{commands: array<string, class-string>}
  * @type ProviderConfig = array{
  *   dependencies: Dependencies,
@@ -117,9 +117,7 @@ final class ConfigProvider
      */
     public function getMigrationConfig(): array
     {
-        return [
-            'migrations' => [],
-        ];
+        return [];
     }
 
     /**

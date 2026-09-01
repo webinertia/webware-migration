@@ -113,7 +113,7 @@ final class ConfigProviderTest extends TestCase
     public function getMigrationConfigDefaultsToEmptyList(): void
     {
         static::assertSame(
-            expected: ['migrations' => []],
+            expected: [],
             actual  : new ConfigProvider()->getMigrationConfig(),
         );
     }
