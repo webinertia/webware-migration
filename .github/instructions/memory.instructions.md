@@ -74,3 +74,7 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
 7. (2026-08-31) Schema/Seed/Migration redesign is ON ICE on branch `amend/multi-component-migrations`
    (full model + contracts recorded there). Interim: `Migration000` = schema, `Migration001` = seed;
    `AbstractMigration` now allows version 0. Package-scoped version identity still deferred.
+8. (2026-08-31) Interim plan: acl and usermanager each ship their own `InitDbCommand` (schema + seed)
+   independent of this package; fold into webware-migration once the redesign settles. Config key is now
+   `MigrationInterface::class` (flat list). Cross-component ordering (Composer graph + package scoping)
+   remains the open gap, deferred to the iced redesign.
