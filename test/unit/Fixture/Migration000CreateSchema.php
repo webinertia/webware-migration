@@ -8,9 +8,11 @@ use Override;
 use Webware\Migration\Migration\AbstractMigration;
 
 /**
+ * Schema migration — version `000` creates the component's schema.
+ *
  * @internal
  */
-final class Migration000ZeroVersion extends AbstractMigration
+final class Migration000CreateSchema extends AbstractMigration
 {
     #[Override]
     public function down(): void {}

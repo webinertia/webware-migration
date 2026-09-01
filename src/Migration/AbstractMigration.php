@@ -28,7 +28,7 @@ abstract class AbstractMigration implements MigrationInterface
     private readonly string $description;
 
     /**
-     * @throws InvalidArgumentException when the class name does not encode a positive version
+     * @throws InvalidArgumentException when the class name does not encode a non-negative version
      * @throws ReflectionException
      */
     public function __construct(?int $version = null, ?string $description = null)
@@ -79,9 +79,9 @@ abstract class AbstractMigration implements MigrationInterface
 
         $version = (int) ($matches[1] ?? '0');
 
-        if ($version <= 0) {
+        if ($version < 0) {
             throw new InvalidArgumentException(message: sprintf(
-                'Migration version in "%s" must be a positive integer.',
+                'Migration version in "%s" must not be negative.',
                 $shortName,
             ));
         }
