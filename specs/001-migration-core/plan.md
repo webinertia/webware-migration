@@ -72,7 +72,7 @@ src/
 ├── Runner/
 │   ├── MigrationRunnerInterface.php  # migrate/rollback contract
 │   ├── MigrationRunner.php           # concrete runner implementing the interface
-│   ├── MigrationDiscoveryInterface.php # getPaths/discover contract
+│   ├── MigrationDiscoveryInterface.php # discover contract
 │   └── MigrationDiscovery.php        # directory glob + package/version derivation + ordering
 ├── ReadModel/
 │   └── DiscoveredMigration.php       # package + version + migration instance

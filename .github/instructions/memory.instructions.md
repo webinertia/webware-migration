@@ -50,7 +50,7 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
   by the Composer dependency graph (topological).
 - Compatibility: Composer's job (`require`/`conflict` in composer.json) — never checked by the runner.
 - Contracts are interfaces: `MigrationRunnerInterface` (`migrate()`/`rollback()`),
-  `MigrationDiscoveryInterface` (`getPaths()`/`discover()`). Concrete `final` classes implement them.
+  `MigrationDiscoveryInterface` (`discover()`; merged paths injected by its factory). Concrete `final` classes implement them.
 - **Integrity checksum (FR-011 / R-007)**: SHA-256 of the migration source file recorded at
   apply time; a mismatch on status/apply is a hard failure. One class per file; file-less out of scope.
 - CLI: Symfony Console `migrate`/`status`/`rollback` as thin adapters over the bus; classes live
