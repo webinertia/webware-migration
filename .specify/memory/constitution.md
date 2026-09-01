@@ -1,10 +1,9 @@
 <!--
 Sync Impact Report
 ==================
-Version change: 1.0.0 → 1.1.0
-Modified principles: II clarified (migration provides ONLY Symfony Console commands; webware-console owns the Application + bin)
-Modified sections: Dependencies & Compatibility (added webware/webware-console hard dep)
-Added sections: none
+Version change: 1.1.0 → 1.2.0
+Modified principles: none
+Added sections: VI. Modern PHP Feature Use (Core Principles)
 Removed sections: none
 Follow-up TODOs: none
 -->
@@ -28,6 +27,9 @@ Every change MUST pass the shared webware gates: Mago format, lint, analyze, and
 ### V. Naming & Compatibility
 Class and interface names MUST NOT add redundant descriptive prefixes that repeat the enclosing namespace. Interface names end in `Interface`; trait names end in `Trait`. Support only current supported PHP versions (`~8.4.1 || ~8.5.0`). This package depends on `webware/webware-core` for shared contracts.
 
+### VI. Modern PHP Feature Use
+Code MUST use modern PHP features wherever they are applicable: constructor property promotion for injected dependencies and value objects; property hooks (PHP 8.4) for computed or validated property access; `readonly` for immutable state; enums over class constants and magic strings for closed value sets; and named arguments at call sites. First-class callables and match expressions replace closure wrappers and `switch` where the construct is static or expression-valued. Newer constructs reduce boilerplate and prevent mutation bugs, so legacy-style equivalents are only acceptable when a feature genuinely does not apply.
+
 ## Dependencies & Compatibility
 
 - `webware/webware-core` supplies shared contracts (e.g. `SchemaInterface`).
@@ -48,4 +50,4 @@ Class and interface names MUST NOT add redundant descriptive prefixes that repea
 - Amendments require a pull request that updates the version and Last Amended date.
 - Every pull request is reviewed for compliance with the Core Principles.
 
-**Version**: 1.1.0 | **Ratified**: 2026-08-28 | **Last Amended**: 2026-08-29
+**Version**: 1.2.0 | **Ratified**: 2026-08-28 | **Last Amended**: 2026-08-31
