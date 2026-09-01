@@ -2,6 +2,7 @@
 /.github/ export-ignore
 /.gitignore export-ignore
 /.specify/ export-ignore
+/docs/ export-ignore
 /specs/ export-ignore
 /renovate.json export-ignore
 /phpunit.xml.dist export-ignore
