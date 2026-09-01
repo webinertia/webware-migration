@@ -37,7 +37,8 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
 - Bus-aware, persistence-agnostic: message-bus command/query orchestration; repositories
   bus-agnostic (natural types only); no php-db `ResultSet`/`RowPrototype` crosses the bus boundary.
 - `MigrationInterface`: `getVersion(): int`, `getDescription(): string`, `up(): void`, `down(): void`.
-- Naming `Migration{NNN}{PascalDescription}`; ascending integer version ordering.
+- Naming `Migration{NNN}{PascalDescription}`; ascending integer version ordering. Version `000`
+  is reserved for schema creation and `001` for seed data (both run before every later migration).
 - Tracking table `schema_migrations` (version PK, description, applied_at, checksum).
 - **Integrity checksum (FR-011 / R-007)**: SHA-256 of the migration source file recorded at
   apply time; a mismatch on status/apply is a hard failure. One class per file; file-less out of scope.
@@ -70,3 +71,10 @@ Tagline: spec-kit scaffold + constitution/spec/plan MERGED; `/speckit-tasks` don
    `Webware\Console\ConsoleInterface` + `webware/webware-console` hard dep (`0.1.x-dev`).
 5. CI/alignment with webware-tools (wrapper workflow, `mago.toml` extends, `phpunit.xml.dist`).
 6. Queued 2026-08-29: strip the "no redundant namespace prefix" clause from Principle V here, in webware-console, and in the webware-tools `webware-alignment` preset constitution template.
+7. (2026-08-31) Schema/Seed/Migration redesign is ON ICE on branch `amend/multi-component-migrations`
+   (full model + contracts recorded there). Interim: `Migration000` = schema, `Migration001` = seed;
+   `AbstractMigration` now allows version 0. Package-scoped version identity still deferred.
+8. (2026-08-31) Interim plan: acl and usermanager each ship their own `InitDbCommand` (schema + seed)
+   independent of this package; fold into webware-migration once the redesign settles. Config key is now
+   `MigrationInterface::class` (flat list). Cross-component ordering (Composer graph + package scoping)
+   remains the open gap, deferred to the iced redesign.

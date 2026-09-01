@@ -47,6 +47,15 @@ final class Migration001CreateRoles extends AbstractMigration
 Register discovered migrations in the container config and operate through the
 `migrate`, `status`, and `rollback` commands provided by webware-console.
 
+### Version convention
+
+- `Migration000{Name}` — creates the component's schema.
+- `Migration001{Name}` — seeds the component's base data.
+- `Migration002{Name}` and up — ordinary migrations.
+
+Schema and seed run before every later migration, so `000`/`001` are reserved
+for them.
+
 ## Documentation
 
 Versioned documentation lives under [`docs/`](docs/):

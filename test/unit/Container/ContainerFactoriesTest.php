@@ -128,9 +128,7 @@ final class ContainerFactoriesTest extends TestCase
     {
         $container = $this->containerStub(map: [
             'config'                       => [
-                MigrationDiscovery::class => [
-                    'migrations' => [Migration001CreateRoles::class],
-                ],
+                MigrationInterface::class => [Migration001CreateRoles::class],
             ],
             Migration001CreateRoles::class => new Migration001CreateRoles(),
         ]);

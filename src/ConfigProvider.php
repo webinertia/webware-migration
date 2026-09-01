@@ -36,12 +36,12 @@ use Webware\Migration\Runner\MigrationRunner;
  *   factories: array<class-string, class-string>,
  *   invokables: array<class-string, class-string>,
  * }
- * @type MigrationConfig = array{migrations: list<string>}
+ * @type MigrationConfig = list<string>
  * @type ConsoleConfig = array{commands: array<string, class-string>}
  * @type ProviderConfig = array{
  *   dependencies: Dependencies,
  *   Webware\Console\ConsoleInterface: ConsoleConfig,
- *   Webware\Migration\Runner\MigrationDiscovery: MigrationConfig,
+ *   Webware\Migration\MigrationInterface: MigrationConfig,
  *   Webware\MessageBus\MessageBusInterface: BusConfig,
  * }
  * @internal
@@ -117,9 +117,7 @@ final class ConfigProvider
      */
     public function getMigrationConfig(): array
     {
-        return [
-            'migrations' => [],
-        ];
+        return [];
     }
 
     /**
@@ -130,7 +128,7 @@ final class ConfigProvider
         return [
             'dependencies'             => $this->getDependencies(),
             ConsoleInterface::class    => $this->getConsoleConfig(),
-            MigrationDiscovery::class  => $this->getMigrationConfig(),
+            MigrationInterface::class  => $this->getMigrationConfig(),
             MessageBusInterface::class => $this->getBusConfig(),
         ];
     }

@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Webware\Migration\Migration\AbstractMigration;
-use WebwareTest\Migration\Fixture\Migration000ZeroVersion;
+use WebwareTest\Migration\Fixture\Migration000CreateSchema;
 use WebwareTest\Migration\Fixture\Migration001CreateRoles;
 use WebwareTest\Migration\Fixture\Migration002AddRoleColumn;
 use WebwareTest\Migration\Fixture\NotAMigration;
@@ -37,6 +37,19 @@ final class AbstractMigrationTest extends TestCase
         static::assertSame(
             expected: 'Custom description',
             actual  : $migration->getDescription(),
+        );
+    }
+
+    #[Test]
+    public function allowsSchemaVersionZero(): void
+    {
+        static::assertSame(
+            expected: 0,
+            actual  : new Migration000CreateSchema()->getVersion(),
+        );
+        static::assertSame(
+            expected: 'Create Schema',
+            actual  : new Migration000CreateSchema()->getDescription(),
         );
     }
 
@@ -82,14 +95,5 @@ final class AbstractMigrationTest extends TestCase
         $this->expectExceptionMessage('must be named Migration');
 
         new NotMigration001Foo();
-    }
-
-    #[Test]
-    public function rejectsZeroVersion(): void
-    {
-        $this->expectException(exception: InvalidArgumentException::class);
-        $this->expectExceptionMessage('positive integer');
-
-        new Migration000ZeroVersion();
     }
 }
