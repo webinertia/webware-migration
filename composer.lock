@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "02fd5df42f0440582ad9f0289c593e6c",
+    "content-hash": "ed3135c19fbefabc123002b080acfce3",
     "packages": [
         {
             "name": "brick/varexporter",
@@ -3550,16 +3550,16 @@
         },
         {
             "name": "webware/message-bus",
-            "version": "2.0.0-beta.1",
+            "version": "2.0.0-beta.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webinertia/message-bus.git",
-                "reference": "6e88c4e4612f833fb41aab21887d5ed54782a54a"
+                "reference": "299a4541f29e3d6baf80cffdfd813ebfddbfdd2a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webinertia/message-bus/zipball/6e88c4e4612f833fb41aab21887d5ed54782a54a",
-                "reference": "6e88c4e4612f833fb41aab21887d5ed54782a54a",
+                "url": "https://api.github.com/repos/webinertia/message-bus/zipball/299a4541f29e3d6baf80cffdfd813ebfddbfdd2a",
+                "reference": "299a4541f29e3d6baf80cffdfd813ebfddbfdd2a",
                 "shasum": ""
             },
             "require": {
@@ -3567,13 +3567,14 @@
                 "psr/container": "^2.0"
             },
             "require-dev": {
-                "infection/infection": "^0.34.1",
+                "infection/infection": "^0.35.0",
                 "laminas/laminas-servicemanager": "^4.0.0",
                 "php-standard-library/type": "^6.2",
                 "phpbench/phpbench": "^1.7",
-                "phpunit/phpunit": "^12.5.30",
+                "phpunit/phpunit": "^13.3.0",
                 "roave/backward-compatibility-check": "^8.21.0",
-                "roave/security-advisories": "dev-master"
+                "roave/security-advisories": "dev-master",
+                "webware/webware-tools": "^0.1.x-dev"
             },
             "suggest": {
                 "laminas/laminas-servicemanager": "Laminas\\ServiceManager component"
@@ -3609,7 +3610,7 @@
                 "issues": "https://github.com/webinertia/message-bus/issues",
                 "source": "https://github.com/webinertia/message-bus"
             },
-            "time": "2026-08-15T05:42:17+00:00"
+            "time": "2026-09-16T11:21:17+00:00"
         },
         {
             "name": "webware/webware-console",
@@ -7355,12 +7356,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/webinertia/webware-tools.git",
-                "reference": "499de5f3d24ba9976c03fd2b62cb2d08ef6fffb3"
+                "reference": "744216f665ebd2e96119457c6a1b8b061d6e5fcc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webinertia/webware-tools/zipball/499de5f3d24ba9976c03fd2b62cb2d08ef6fffb3",
-                "reference": "499de5f3d24ba9976c03fd2b62cb2d08ef6fffb3",
+                "url": "https://api.github.com/repos/webinertia/webware-tools/zipball/744216f665ebd2e96119457c6a1b8b061d6e5fcc",
+                "reference": "744216f665ebd2e96119457c6a1b8b061d6e5fcc",
                 "shasum": ""
             },
             "require": {
@@ -7397,7 +7398,7 @@
                 "issues": "https://github.com/webinertia/webware-tools/issues",
                 "source": "https://github.com/webinertia/webware-tools/tree/0.1.x"
             },
-            "time": "2026-09-08T19:23:06+00:00"
+            "time": "2026-09-16T18:25:18+00:00"
         }
     ],
     "aliases": [],
