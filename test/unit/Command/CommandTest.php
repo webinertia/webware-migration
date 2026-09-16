@@ -13,9 +13,9 @@ use Webware\Migration\Command\RunMigrationsCommand;
 
 #[CoversClass(RunMigrationsCommand::class)]
 #[CoversClass(RollbackMigrationCommand::class)]
-#[CoversMethod(RunMigrationsCommand::class, 'getName')]
+#[CoversMethod(RunMigrationsCommand::class, 'getCommandName')]
 #[CoversMethod(RollbackMigrationCommand::class, '__construct')]
-#[CoversMethod(RollbackMigrationCommand::class, 'getName')]
+#[CoversMethod(RollbackMigrationCommand::class, 'getCommandName')]
 final class CommandTest extends TestCase
 {
     #[Test]
@@ -41,7 +41,7 @@ final class CommandTest extends TestCase
     {
         static::assertSame(
             expected: RollbackMigrationCommand::class,
-            actual  : new RollbackMigrationCommand()->getName(),
+            actual  : new RollbackMigrationCommand()->getCommandName(),
         );
     }
 
@@ -50,7 +50,7 @@ final class CommandTest extends TestCase
     {
         static::assertSame(
             expected: RunMigrationsCommand::class,
-            actual  : new RunMigrationsCommand()->getName(),
+            actual  : new RunMigrationsCommand()->getCommandName(),
         );
     }
 }

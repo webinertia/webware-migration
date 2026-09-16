@@ -4,21 +4,17 @@ declare(strict_types=1);
 
 namespace Webware\Migration\Command;
 
-use Override;
 use Webware\MessageBus\Command\NamedCommandInterface;
+use Webware\MessageBus\Command\NamedCommandTrait;
 
 /**
  * Reverts the N most recently applied migrations in reverse order (FR-006).
  */
-final readonly class RollbackMigrationCommand implements NamedCommandInterface
+final class RollbackMigrationCommand implements NamedCommandInterface
 {
-    public function __construct(
-        public int $steps = 1,
-    ) {}
+    use NamedCommandTrait;
 
-    #[Override]
-    public function getName(): string
-    {
-        return self::class;
-    }
+    public function __construct(
+        public readonly int $steps = 1,
+    ) {}
 }
