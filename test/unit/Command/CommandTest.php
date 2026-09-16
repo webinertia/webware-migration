@@ -13,9 +13,7 @@ use Webware\Migration\Command\RunMigrationsCommand;
 
 #[CoversClass(RunMigrationsCommand::class)]
 #[CoversClass(RollbackMigrationCommand::class)]
-#[CoversMethod(RunMigrationsCommand::class, 'getCommandName')]
 #[CoversMethod(RollbackMigrationCommand::class, '__construct')]
-#[CoversMethod(RollbackMigrationCommand::class, 'getCommandName')]
 final class CommandTest extends TestCase
 {
     #[Test]
