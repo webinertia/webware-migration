@@ -3764,12 +3764,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/webinertia/webware-console.git",
-                "reference": "85d1a130f5ae9004369bff450b25686cfea78dd1"
+                "reference": "02b642f93bc1de52897c0a77ea746c5bc3ee44ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webinertia/webware-console/zipball/85d1a130f5ae9004369bff450b25686cfea78dd1",
-                "reference": "85d1a130f5ae9004369bff450b25686cfea78dd1",
+                "url": "https://api.github.com/repos/webinertia/webware-console/zipball/02b642f93bc1de52897c0a77ea746c5bc3ee44ed",
+                "reference": "02b642f93bc1de52897c0a77ea746c5bc3ee44ed",
                 "shasum": ""
             },
             "require": {
@@ -3782,7 +3782,7 @@
             "require-dev": {
                 "infection/infection": "^0.35",
                 "phpunit/phpunit": "^13.3",
-                "webware/webware-tools": "^0.1.x-dev"
+                "webware/webware-tools": "^1.0.0-beta.2"
             },
             "default-branch": true,
             "bin": [
@@ -3817,7 +3817,7 @@
                 "issues": "https://github.com/webinertia/webware-console/issues",
                 "source": "https://github.com/webinertia/webware-console/tree/0.1.x"
             },
-            "time": "2026-09-18T06:27:48+00:00"
+            "time": "2026-09-20T01:48:08+00:00"
         },
         {
             "name": "webware/webware-core",
