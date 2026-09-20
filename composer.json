@@ -27,7 +27,7 @@
         "infection/infection": "^0.35.0",
         "php-db/phpdb-sqlite": "^0.3.x-dev",
         "phpunit/phpunit": "^13.3",
-        "webware/webware-tools": "^0.1.x-dev"
+        "webware/webware-tools": "^1.0.0-beta.2"
     },
     "autoload": {
         "psr-4": {
