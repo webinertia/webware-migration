@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ff7d8d4680a8a4c699681348640e8962",
+    "content-hash": "dc06d2c62f73b95b6b2ed3d35b4ce8c0",
     "packages": [
         {
             "name": "brick/varexporter",
@@ -3760,7 +3760,7 @@
         },
         {
             "name": "webware/webware-console",
-            "version": "0.1.x-dev",
+            "version": "1.0.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webinertia/webware-console.git",
