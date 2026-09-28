@@ -7,7 +7,6 @@ namespace Webware\Migration;
 use Webware\Console\ConsoleInterface;
 use Webware\MessageBus\ConfigProvider as BusProvider;
 use Webware\MessageBus\MessageBusInterface;
-use Webware\MessageBus\Middleware\MessageHandlerMiddleware;
 use Webware\Migration\Command\RollbackMigrationCommand;
 use Webware\Migration\Command\RunMigrationsCommand;
 use Webware\Migration\CommandHandler\RollbackMigrationHandler;
@@ -29,7 +28,6 @@ use Webware\Migration\Runner\MigrationRunner;
  * @type BusConfig = array{
  *   command_map: array<class-string, class-string>,
  *   query_map: array<class-string, class-string>,
- *   middleware_pipeline: array<array{middleware: class-string, priority: int}>,
  * }
  * @type Dependencies = array{
  *   aliases: array<class-string, class-string>,
@@ -54,19 +52,13 @@ final class ConfigProvider
     public function getBusConfig(): array
     {
         return [
-            BusProvider::COMMAND_MAP_KEY         => [
+            BusProvider::COMMAND_MAP_KEY => [
                 RunMigrationsCommand::class     => RunMigrationsHandler::class,
                 RollbackMigrationCommand::class => RollbackMigrationHandler::class,
             ],
-            BusProvider::QUERY_MAP_KEY           => [
+            BusProvider::QUERY_MAP_KEY   => [
                 ListMigrationsQuery::class         => ListMigrationsHandler::class,
                 FetchAppliedMigrationsQuery::class => FetchAppliedMigrationsHandler::class,
-            ],
-            BusProvider::MIDDLEWARE_PIPELINE_KEY => [
-                [
-                    'middleware' => MessageHandlerMiddleware::class,
-                    'priority'   => BusProvider::DEFAULT_PRIORITY,
-                ],
             ],
         ];
     }
