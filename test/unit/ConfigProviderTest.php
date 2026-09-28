@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 use Webware\Console\ConsoleInterface;
 use Webware\MessageBus\ConfigProvider as BusProvider;
 use Webware\MessageBus\MessageBusInterface;
-use Webware\MessageBus\Middleware\MessageHandlerMiddleware;
 use Webware\Migration\Command\RollbackMigrationCommand;
 use Webware\Migration\Command\RunMigrationsCommand;
 use Webware\Migration\CommandHandler\RollbackMigrationHandler;
@@ -59,13 +58,9 @@ final class ConfigProviderTest extends TestCase
             ],
             actual  : $busConfig[BusProvider::QUERY_MAP_KEY],
         );
-        static::assertCount(
-            expectedCount: 1,
-            haystack     : $busConfig[BusProvider::MIDDLEWARE_PIPELINE_KEY],
-        );
-        static::assertSame(
-            expected: MessageHandlerMiddleware::class,
-            actual  : $busConfig[BusProvider::MIDDLEWARE_PIPELINE_KEY][0]['middleware'],
+        static::assertArrayNotHasKey(
+            key  : BusProvider::MIDDLEWARE_PIPELINE_KEY,
+            array: $busConfig,
         );
     }
 
