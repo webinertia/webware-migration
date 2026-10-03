@@ -1080,72 +1080,6 @@
             "time": "2026-09-25T15:54:11+00:00"
         },
         {
-            "name": "php-standard-library/collection",
-            "version": "6.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-standard-library/collection.git",
-                "reference": "d31f6a015958ae4e13e2c1d47621d9786ee1ec1a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-standard-library/collection/zipball/d31f6a015958ae4e13e2c1d47621d9786ee1ec1a",
-                "reference": "d31f6a015958ae4e13e2c1d47621d9786ee1ec1a",
-                "shasum": ""
-            },
-            "require": {
-                "php": "~8.4.0 || ~8.5.0",
-                "php-standard-library/default": "^6.0",
-                "php-standard-library/foundation": "^6.0"
-            },
-            "conflict": {
-                "azjezz/psl": "*"
-            },
-            "require-dev": {
-                "php-standard-library/str": "^6.0",
-                "php-standard-library/vec": "^6.0",
-                "phpunit/phpunit": "^13.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-next": "6.3.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Psl\\Collection\\": "src/Psl/Collection/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Seifeddine Gmati",
-                    "email": "azjezz@carthage.software"
-                },
-                {
-                    "name": "Contributors",
-                    "homepage": "https://github.com/php-standard-library/php-standard-library/graphs/contributors"
-                }
-            ],
-            "description": "Generic, object-oriented Vector, Map, and Set collections with immutable and mutable variants",
-            "homepage": "https://php-standard-library.dev",
-            "keywords": [
-                "collection",
-                "generics",
-                "map",
-                "set",
-                "vector"
-            ],
-            "support": {
-                "source": "https://github.com/php-standard-library/collection/tree/6.3.0"
-            },
-            "time": "2026-09-25T15:54:11+00:00"
-        },
-        {
             "name": "php-standard-library/comparison",
             "version": "6.3.0",
             "source": {
@@ -2331,80 +2265,6 @@
             ],
             "support": {
                 "source": "https://github.com/php-standard-library/terminal/tree/6.3.0"
-            },
-            "time": "2026-09-25T15:54:11+00:00"
-        },
-        {
-            "name": "php-standard-library/type",
-            "version": "6.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-standard-library/type.git",
-                "reference": "80986810f49ba476d90dfeaa9c41bee0997675eb"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-standard-library/type/zipball/80986810f49ba476d90dfeaa9c41bee0997675eb",
-                "reference": "80986810f49ba476d90dfeaa9c41bee0997675eb",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "php": "~8.4.0 || ~8.5.0",
-                "php-standard-library/collection": "^6.0",
-                "php-standard-library/foundation": "^6.0",
-                "php-standard-library/iter": "^6.0"
-            },
-            "conflict": {
-                "azjezz/psl": "*"
-            },
-            "require-dev": {
-                "ext-bcmath": "*",
-                "php-standard-library/dict": "^6.0",
-                "php-standard-library/math": "^6.0",
-                "php-standard-library/result": "^6.0",
-                "php-standard-library/str": "^6.0",
-                "php-standard-library/vec": "^6.0",
-                "phpunit/phpunit": "^13.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-next": "6.3.x-dev"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/Psl/bootstrap.php"
-                ],
-                "psr-4": {
-                    "Psl\\Type\\": "src/Psl/Type/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Seifeddine Gmati",
-                    "email": "azjezz@carthage.software"
-                },
-                {
-                    "name": "Contributors",
-                    "homepage": "https://github.com/php-standard-library/php-standard-library/graphs/contributors"
-                }
-            ],
-            "description": "Runtime type validation implementing Parse, Don't Validate - coerce and assert unstructured input into well-typed data",
-            "homepage": "https://php-standard-library.dev",
-            "keywords": [
-                "coercion",
-                "type",
-                "type-safety",
-                "validation"
-            ],
-            "support": {
-                "source": "https://github.com/php-standard-library/type/tree/6.3.0"
             },
             "time": "2026-09-25T15:54:11+00:00"
         },
@@ -3821,16 +3681,16 @@
         },
         {
             "name": "webware/webware-core",
-            "version": "1.0.0-alpha.6",
+            "version": "1.0.0-alpha.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webinertia/webware-core.git",
-                "reference": "46b8325250b1d0852de2b7c293452fafccf7a729"
+                "reference": "34f3d814bbabf9274ebdb9e7034377ad88d31438"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webinertia/webware-core/zipball/46b8325250b1d0852de2b7c293452fafccf7a729",
-                "reference": "46b8325250b1d0852de2b7c293452fafccf7a729",
+                "url": "https://api.github.com/repos/webinertia/webware-core/zipball/34f3d814bbabf9274ebdb9e7034377ad88d31438",
+                "reference": "34f3d814bbabf9274ebdb9e7034377ad88d31438",
                 "shasum": ""
             },
             "require": {
@@ -3840,7 +3700,6 @@
                 "mezzio/mezzio-authentication": "^1.13",
                 "php": "~8.4.1 || ~8.5.0",
                 "php-db/phpdb": "^0.6.x-dev",
-                "php-standard-library/type": "^6.2.1",
                 "psr/http-message": "^2.0",
                 "psr/http-server-handler": "^1.0",
                 "psr/http-server-middleware": "^1.0"
@@ -3850,9 +3709,6 @@
                 "laminas/laminas-diactoros": "^3.8",
                 "laminas/laminas-filter": "3.5.x-dev",
                 "php-db/phpdb": "^0.6.0",
-                "php-db/phpdb-mysql": "^0.5.x-dev",
-                "php-db/phpdb-pgsql": "^0.1.x-dev",
-                "php-db/phpdb-sqlite": "^0.3.x-dev",
                 "phpbench/phpbench": "^1.7",
                 "phpunit/phpunit": "^13.3",
                 "roave/backward-compatibility-check": "^8.21.0",
@@ -3884,9 +3740,9 @@
             ],
             "support": {
                 "issues": "https://github.com/webinertia/webware-core/issues",
-                "source": "https://github.com/webinertia/webware-core/tree/1.0.0-alpha.6"
+                "source": "https://github.com/webinertia/webware-core/tree/1.0.0-alpha.9"
             },
-            "time": "2026-09-21T03:09:42+00:00"
+            "time": "2026-10-03T14:47:57+00:00"
         }
     ],
     "packages-dev": [
@@ -7411,16 +7267,16 @@
         },
         {
             "name": "webware/webware-tools",
-            "version": "1.0.0-beta.5",
+            "version": "1.0.0-beta.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webinertia/webware-tools.git",
-                "reference": "fa188188a6a755e91ea1bac9c9f22cda6b7b019c"
+                "reference": "bec8ccaa8ca17896d2ee22b3a7067e53c33b79e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webinertia/webware-tools/zipball/fa188188a6a755e91ea1bac9c9f22cda6b7b019c",
-                "reference": "fa188188a6a755e91ea1bac9c9f22cda6b7b019c",
+                "url": "https://api.github.com/repos/webinertia/webware-tools/zipball/bec8ccaa8ca17896d2ee22b3a7067e53c33b79e2",
+                "reference": "bec8ccaa8ca17896d2ee22b3a7067e53c33b79e2",
                 "shasum": ""
             },
             "require": {
@@ -7449,9 +7305,9 @@
             ],
             "support": {
                 "issues": "https://github.com/webinertia/webware-tools/issues",
-                "source": "https://github.com/webinertia/webware-tools/tree/1.0.0-beta.5"
+                "source": "https://github.com/webinertia/webware-tools/tree/1.0.0-beta.9"
             },
-            "time": "2026-09-26T22:50:13+00:00"
+            "time": "2026-10-03T14:52:08+00:00"
         }
     ],
     "aliases": [],
